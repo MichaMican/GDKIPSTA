@@ -13,5 +13,5 @@ for filename in os.listdir(path):
 
     res = imProc.main(path + filename, displayImages)
     with open("results.txt", "a+") as f:
-        f.write(filename + ": " + res + "\n")
+        f.write(filename + ": " + str(res) + "\n")
 

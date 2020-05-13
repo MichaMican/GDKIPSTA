@@ -7,44 +7,52 @@ import time
 
 def detectUpperLowerStart(imgArr):
     res = imgArr.shape
-    blackThreshold = 125
-    detectedTopBorder=[]
-    detectedBotBorder=[]
-    bottomBorderDetected = False
-    topBorderDetected = False
+    blackThresholdTop = 0 # this has to be calculated
+    blackThresholdBot = 0 # this has to be calculated
+
+    sumTopBot = [[],[]] #sumTop, sumBot, numberOfPixels in Top/Bot
+
+    #calculate start threshholds
+    for y, x in it.product(range(0, round(res[0]/3)), range(0, res[1])):
+        yfromBot = res[0] - y - 1
+        xfromBot = res[1] - x - 1
+
+        sumTopBot
+        sumTopBot
+
+
+    detectedTopBorder=-1
+    detectedBotBorder=-1
     #check upper third if the top of the traffic light is detected
-    while (not topBorderDetected or not bottomBorderDetected) and blackThreshold >= 0:
+    while (detectedBotBorder < 0 or detectedBotBorder < 0):
         for y, x in it.product(range(0, round(res[0]/3)), range(0, res[1])):
             yfromBot = res[0] - y - 1
             xfromBot = res[1] - x - 1
 
-            if not topBorderDetected:
-                if imgArr[y][x] <= blackThreshold:
+            if(detectedTopBorder < 0):
+                if imgArr[y][x] <= blackThresholdTop:
                     colorUnderneath = (imgArr[y+1][x] +imgArr[y+2][x] +imgArr[y+3][x] +imgArr[y+4][x] +imgArr[y+5][x]) / 5
-                    if colorUnderneath >= blackThreshold:
-                        detectedTopBorder.append(y)
+                    if colorUnderneath <= blackThresholdTop:
+                        detectedTopBorder = y
                         break
-                elif len(detectedTopBorder) >= 1:
-                    topBorderDetected = True
 
-            if not bottomBorderDetected:
-                if imgArr[yfromBot][xfromBot] <= blackThreshold:
+            if(detectedBotBorder < 0):                
+                if imgArr[yfromBot][xfromBot] <= blackThresholdBot:
                     colorAbove = (imgArr[yfromBot-1][xfromBot] + imgArr[yfromBot-2][xfromBot] + imgArr[yfromBot-3][xfromBot] + imgArr[yfromBot-4][xfromBot] + imgArr[yfromBot-5][xfromBot]) / 5
-                    if colorAbove >= blackThreshold:
-                        detectedBotBorder.append(yfromBot)
+                    if colorAbove <= blackThresholdBot:
+                        detectedBotBorder = yfromBot
                         break
-                elif len(detectedBotBorder) >= 1:
-                    bottomBorderDetected = True
             
-        if not topBorderDetected or not bottomBorderDetected:
-            blackThreshold -= 10
+        if detectedBotBorder < 0 or detectedTopBorder < 0:
+            blackThresholdTop += 10
+            blackThresholdBot += 10
 
-    if len(detectedTopBorder) <= 0:
-        detectedTopBorder = [0]
-    if len(detectedBotBorder) <= 0:
-        detectedBotBorder = [res[0]-1]
+    if detectedTopBorder < 0:
+        detectedTopBorder = 0
+    if detectedBotBorder < 0:
+        detectedBotBorder = res[1]-1
 
-    return [int(round(np.mean(detectedTopBorder))), int(round(np.mean(detectedBotBorder)))]
+    return [detectedTopBorder, detectedBotBorder]
     
 
 
@@ -65,18 +73,10 @@ def indexToColor(index):
 
 def main(pathToImage, showImageAfterProcessing=True):
 
-    print("Processing " + pathToImage)
-
-    start = time.time()
     imgColor = cv2.imread(pathToImage, -1)
     imgColorPreProcessed = cv2.imread(pathToImage, -1)
-    end = time.time()
-    print("Time to read image (colored) : " + str(end - start))
 
-    start = time.time()
     resolution = imgColor.shape
-
-    #cropedColorImg = imgColor[0:resolution[0], round(resolution[1]/2)+5: round(resolution[1]/2)+5]
 
     ythird = round(resolution[0] / 3)
     ytwothirds = round(2 * resolution[0] / 3)
@@ -108,31 +108,12 @@ def main(pathToImage, showImageAfterProcessing=True):
     for i, sumPixel in enumerate(sumPixels):
         averageColor[i] = sumPixel/(resolution[0] / 3 * resolution[1])
 
-    end = time.time()
-    print("Time to calculate Average (colored): " + str(end - start))
-
-    print(str(averageColor) + " by Color")
     evaluationIndexColor = evaluate(averageColor)
-
-    start = time.time()
     imgGrey = cv2.imread(pathToImage, 0)
 
     cropedGreyImg = imgGrey[0:resolution[0], round(resolution[1]/2)-5: round(resolution[1]/2)+5]
 
     resolution = cropedGreyImg.shape
-
-
-    # if imgColor.shape[2] == 4:
-    #     imgGrey = cv2.cvtColor(imgColorPreProcessed, cv2.COLOR_BGRA2GRAY)
-    # elif imgColor.shape[2] == 3:
-    #     imgGrey = cv2.cvtColor(imgColorPreProcessed, cv2.COLOR_BGR2GRAY)
-    # else:
-    #     imgGrey = cv2.imread(pathToImage, 0)
-
-    end = time.time()
-    print("Time to read image (greyscaled) : " + str(end - start))
-
-    start = time.time()
     ythird = round(resolution[0] / 3)
     ytwothirds = round(2 * resolution[0] / 3)
 
@@ -162,28 +143,16 @@ def main(pathToImage, showImageAfterProcessing=True):
             # imgGrey[y][x] = 255
 
     for i, sumPixel in enumerate(sumPixels):
-        #resolution0/3 => only thirds of image
+        #resolution/3 => only thirds of image
         averageGrey[i] = sumPixel/(resolution[0] / 3 * resolution[1])
 
-    end = time.time()
-    print("Time to calculate Average (greyscale): " + str(end - start))
-
-    print(str(averageGrey) + " by Greyscale")
     evaluationIndexGreyScale = evaluate(averageGrey)
 
-    resultText = ""
-    # if evaluationIndexColor != evaluationIndexGreyScale:
-    #     resultText = "Color & greyscale deliver different results - Color: " + \
-    #         indexToColor(evaluationIndexColor) + " Greyscale: " + indexToColor(
-    #             evaluationIndexGreyScale) + " C: " + str(averageColor) + " G: " + str(averageGrey)
-    # else:
-    #     resultText = indexToColor(
-    #         evaluationIndexColor) + " C: " + str(averageColor) + " G: " + str(averageGrey)
-
-    resultText = "color|greyscale: {} | {} ({} | {})".format(indexToColor(evaluationIndexColor), indexToColor(evaluationIndexGreyScale), str(averageColor), str(averageGrey))
-
+    resultText = -1
+    resultText = evaluationIndexGreyScale
 
     imgGrayYCropped = cropedGreyImg.copy()
+    
     borders = detectUpperLowerStart(imgGrayYCropped)
 
     for x in range(0, imgGrayYCropped.shape[1]):
@@ -191,14 +160,13 @@ def main(pathToImage, showImageAfterProcessing=True):
         imgGrayYCropped[borders[1]][x] = 255
 
 
-    print(resultText)
     if showImageAfterProcessing:
         if imgColor.shape[2] == 4:
             imgGrey3Chanel = cv2.cvtColor(cropedGreyImg, cv2.COLOR_GRAY2BGRA)
         elif imgColor.shape[2] == 3:
             imgGrey3Chanel = cv2.cvtColor(cropedGreyImg, cv2.COLOR_GRAY2BGR)
 
-        img = np.hstack((cropedGreyImg, imgGrayYCropped))
+        img = np.hstack((imgGrey, imgGrayYCropped))
         cv2.imshow(pathToImage.split("/")[-1], img)
 
         output = imgGrey.copy()
