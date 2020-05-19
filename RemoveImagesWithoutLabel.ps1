@@ -15,7 +15,7 @@ function Remove-Images {
     $images | ForEach-Object {
         $labelPath = $_.FullName.Substring(0,$_.FullName.LastIndexOf('.')[0]) + ".txt"
         if(!(Test-Path $labelPath)) {
-            Move-Item -Path $_.FullName -Destination $NoLabelPath
+            Move-Item -Path $_.FullName -Destination $NoLabelPath -Force
         }
     }
 }
