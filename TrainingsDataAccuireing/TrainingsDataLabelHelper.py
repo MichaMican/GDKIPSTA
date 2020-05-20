@@ -11,9 +11,9 @@ class ImageClass(Enum):
     EXCLUDE = 3
     NONE = 4
 
-detector = Detector('<absolute-path-to>/darknet/cfg/coco.data',
-                    '<absolute-path-to>/darknet/cfg/yolo.cfg',
-                    '<absolute-path-to>/darknet/yolo.weights')
+detector = Detector('/home/gott/Desktop/GIT/GDKIPSTA/TrainingsDataAccuireing/ampelnRYG.data',
+                    '/home/gott/Desktop/GIT/GDKIPSTA/TrainingsDataAccuireing/ampelnRYG.cfg',
+                    '/home/gott/Desktop/GIT/GDKIPSTA/TrainingsDataAccuireing/ampelnRYG.weights')
 
 scriptPath = os.path.dirname(os.path.realpath(__file__)).replace("\\", "/") + "/"
 imgFolderPath = scriptPath + "imgFolder/"
@@ -44,7 +44,7 @@ def createDir(path):
 
 
 def getBoundingBoxes(imgPath):
-    return detector.detect('<absolute-path-to>/darknet/data/dog.jpg')
+    return detector.detect(imgPath)
 
 
 
@@ -81,7 +81,7 @@ def evaluateImage(imgPath):
     plt.draw()
     plt.pause(0.001)
     
-    print("Press 'Y' if the boxes are CORRECT. Press 'N' if there are WRONG detections. If there is nothing to lable in the image press 'e'")
+    print("Press 'Y' if the boxes are CORRECT. Press 'N' if there are WRONG detections. If there is nothing to lable in the image press 'E'")
     imgClass = ImageClass.NONE
     while imgClass == ImageClass.NONE:
         if keyboard.is_pressed('y'):
