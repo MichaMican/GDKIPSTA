@@ -28,6 +28,7 @@ def main():
     createDir(correctlyLabledFolderPath)
     createDir(wronglyLabledFolderPath)
     createDir(excludedImagesFolderPath)
+    createDir(labelsFolderPath)
     for fileName in os.listdir(imgFolderPath):
         filePath = imgFolderPath + fileName
         classifingResult = evaluateImage(filePath)
@@ -75,13 +76,13 @@ def evaluateImage(imgPath):
 
             widthOfImage, heightOfImage = Image.open(imgPath).size
 
-            width = (bbox['right'] - bbox['left'])
-            height = (bbox['bottom'] - bbox['top'])
+            width = int(int(bbox['right']) - int(bbox['left']))
+            height = int(int(bbox['bottom']) - int(bbox['top']))
 
-            relXMiddle = (0.5 * width + bbox['left']) / widthOfImage
-            relYMiddle = (0.5 * height + bbox['top']) / heightOfImage
-            relWidth = width / widthOfImage
-            relHeight = height / heightOfImage
+            relXMiddle = float((0.5 * width + int(bbox['left'])) / widthOfImage)
+            relYMiddle = float((0.5 * height + int(bbox['top'])) / heightOfImage)
+            relWidth = float(width / widthOfImage)
+            relHeight = float(height / heightOfImage)
 
             yoloFileStringContent.append("{} {} {} {} {}".format(str(classId), relXMiddle, relYMiddle, relWidth, relHeight))
 
@@ -94,7 +95,7 @@ def evaluateImage(imgPath):
             facecolor='none'
         )
 
-        ax.text(bbox['left'], bbox['top'], bbox['class'] + bbox['prob'], fontsize=12, bbox={
+        ax.text(bbox['left'], bbox['top'], bbox['class'] + str(bbox['prob']), fontsize=12, bbox={
                 'facecolor': color, 'pad': 2, 'ec': color})
 
         ax.add_patch(rect)
@@ -121,7 +122,9 @@ def evaluateImage(imgPath):
             break
 
     if imgClass == ImageClass.CORRECT:
-        with open(labelsFolderPath + imgPath.split(".")[-2] + ".txt", "w+") as f:
+        imgName = (imgPath.split(".")[-2]).split("/")[-1] + ".txt"
+
+        with open(labelsFolderPath + imgName, "w+") as f:
             f.writelines(yoloFileStringContent)
 
     plt.clf()
