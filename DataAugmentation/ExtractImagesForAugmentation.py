@@ -1,23 +1,61 @@
 import os
 from PIL import Image
+import cv2
 
-for file in os.listdir(os.getcwd() + "/Dataset_test"):
-    if file.endswith(".txt"):
-        img = file.split('.')[0] + ".jpg"
-        im = Image.open("Dataset/" + img)
-        width, height = im.size 
-        linecount = len(open("Dataset/" + file).readlines())
-        for line in range(0,linecount):
-            f = open("Dataset/"+file)
-            content = f.readlines()[line]
-            content = content.split(" ")
-            x_min,y_min,x_max,y_max =float(content[1]),float(content[2]),float(content[3]),float(content[4])
-            area = (x_min,y_min,x_min+width,y_min+height)
-            left = width * x_min
-            top = width * x_min
-            right = width * x_max
-            bottom = height * y_max
+def cropImage(img, height, width, content):
+    mittewidth = int(width * float(content[1]))
+    mittheight = int(height * float(content[2]))
+    widthOfBbox =int( width * float(content[3]))
+    heightOfBbox = int(height * float(content[4]))
+    min_x = int(mittewidth - (0.5 * widthOfBbox))
+    min_y = int(mittheight - (0.5 * heightOfBbox))
+    crop_img = img[min_y:min_y+heightOfBbox, min_x:min_x+widthOfBbox]
+    return crop_img
 
-            testarea = (left,top,right,bottom)
-            im1 = im.crop(testarea)
-            im1.show()
+def saveImageToFolder(indicator, img, name):
+    folderToSave = "wait what"
+    if indicator == 0:
+        folderToSave = "TL_R"
+    elif indicator == 1:
+        folderToSave = "TL_Y"
+    elif indicator == 2:
+        folderToSave = "TL_G"
+    path = folderToSave + "\\" + name
+    cv2.imwrite(path, img)
+
+    
+def checkForAllFolders():
+    if not os.path.exists("TL_R"):
+        os.makedirs("TL_R")
+    if not os.path.exists("TL_Y"):
+        os.makedirs("TL_Y")
+    if not os.path.exists("TL_G"):
+        os.makedirs("TL_G")
+
+def main():
+    checkForAllFolders()
+    path = os.getcwd() + "/Dataset"
+    num_files = len([f for f in os.listdir(path)if os.path.isfile(os.path.join(path, f))]) / 2
+    counter = 1
+    for file in os.listdir(path):
+        print("Working on {} / {} Image".format(counter, num_files))
+        if file.endswith(".txt"):
+            imgPath = file.split('.')[0] + ".jpg"
+            if os.path.isfile("Dataset/" + imgPath) == False:
+                continue
+                counter += 1
+            img = cv2.imread("Dataset/" + imgPath)
+            if img is None:
+                continue
+                counter += 1
+            height, width, channels = img.shape
+            linecount = len(open("Dataset/" + file).readlines())
+            for line in range(0,linecount):
+                f = open("Dataset/"+file)
+                content = f.readlines()[line]
+                content = content.split(" ")
+                croppedImage = cropImage(img, height, width, content)
+                saveImageToFolder(int(content[0]), croppedImage, imgPath)
+            counter += 1
+
+main()
