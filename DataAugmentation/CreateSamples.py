@@ -47,7 +47,8 @@ def placeDistortedSample(outImgTight,foregroundPixTight,BoundRect,bkgImg):
 
 def main():
     parser = configparser.RawConfigParser()
-    parser.read('Parameters.config')
+    paraFile = os.getcwd() + "\DataAugmentation\Parameters.config"
+    parser.read(paraFile)
 
     backgroundFilePath=parser.get('USER_PARAMS','backgroundFilePath')
     samplePath = parser.get('USER_PARAMS', 'sampleFilesPath')
