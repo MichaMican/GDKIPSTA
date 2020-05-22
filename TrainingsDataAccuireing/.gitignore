@@ -1,1 +1,5 @@
-imgRaw/
+imgFolder/
+wrongLabled/
+correctLabled/
+excludedImages/
+labels/
