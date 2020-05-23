@@ -25,7 +25,7 @@ def resize(fileName):
         im = Image.open(scriptPath + fileName, "r")
         exifData = im._getexif()
 
-        if exifData not None:
+        if exifData != None:
             if exifData[274] == 6:
                 im.rotate(-90, expand=True)
             elif exifData[274] == 8:
