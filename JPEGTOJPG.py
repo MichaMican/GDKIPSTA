@@ -21,17 +21,27 @@ def createDir(path):
 
 def resize(fileName):
 
-    if ".jpg" in fileName or ".png" in fileName:
+    if ".jpg" in fileName or ".png" in fileName or ".jpeg" in fileName:
         im = Image.open(scriptPath + fileName, "r")
-        exifData = im._getexif()
+        
+        exifData = None
+
+        
+        try:
+            exifData = im._getexif()
+        except:
+            print("Unable to get exif of " + fileName)
 
         if exifData != None:
             if exifData[274] == 6:
-                im.rotate(-90, expand=True)
+                print("Rotating Img left")
+                im = im.rotate(-90, expand=True)
             elif exifData[274] == 8:
-                im.rotate(90, expand=True)
+                print("Rotating Img right")
+                im = im.rotate(90, expand=True)
             elif exifData[274] == 3:
-                im.rotate(180, expand=True)
+                print("Rotating Img arround")
+                im = im.rotate(180, expand=True)
 
         imageSize = im.size
         width = imageSize[0]
