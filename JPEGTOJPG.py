@@ -24,26 +24,27 @@ def resize(fileName):
     if ".jpg" in fileName or ".png" in fileName:
         im = Image.open(scriptPath + fileName, "r")
         exifData = im._getexif()
+
+        if exifData not None:
+            if exifData[274] == 6:
+                im.rotate(-90, expand=True)
+            elif exifData[274] == 8:
+                im.rotate(90, expand=True)
+            elif exifData[274] == 3:
+                im.rotate(180, expand=True)
+
         imageSize = im.size
         width = imageSize[0]
         height = imageSize[1]
-        backgroundwidth = 1600
-        backgroundHeight = 900
 
-        if(width < height):
-            if height > width:
-                backgroundwidth = round((height * (16/9)))
 
-            background = Image.new('RGB', (backgroundwidth, height), (255, 255, 255))
-            offset = (round(backgroundwidth / 2 - width/2), 0)
-
-            background.paste(im, offset)
-            background.save(convertedImagesPath + fileName.split(".")[-2] + ".jpg")
-            print("Images resized !")
+        if ".jpeg" in fileName:
+            im.save(convertedImagesPath + fileName.split(".")[-2] + ".jpg")
+            print("Images converted !")
 
         else:
             im.save(convertedImagesPath + fileName)
-            print("Image not resized !")
+            print("Image not converted!")
 
 
 main()
