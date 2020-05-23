@@ -11,9 +11,6 @@ def main():
     createDir(convertedImagesPath)
 
     for fileName in os.listdir(scriptPath):
-        rename(fileName)
-
-    for fileName in os.listdir(scriptPath):
         resize(fileName)
 
 
@@ -21,16 +18,12 @@ def createDir(path):
     Path(path).mkdir(parents=True, exist_ok=True)
 
 
-def rename(fileName):
-
-    if fileName.__contains__(".jpeg"):
-        os.rename(scriptPath + fileName, scriptPath + fileName.split(".")[-2] + ".jpg")
-
 
 def resize(fileName):
 
     if ".jpg" in fileName or ".png" in fileName:
         im = Image.open(scriptPath + fileName, "r")
+        exifData = im._getexif()
         imageSize = im.size
         width = imageSize[0]
         height = imageSize[1]
