@@ -14,6 +14,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct
+{
+    short framesSinceData;
+    box bbox;
+} smoothBox;
+
 /*
 typedef struct {
     int w;

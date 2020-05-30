@@ -439,9 +439,101 @@ void draw_detections_v3(image im, detection *dets, int num, float thresh, char *
     free(selected_detections);
 }
 
+
+bool checkOverlap(box b1, box b2){
+    float x1 = b1.x;
+    float y1 = b1.y;
+    float w1 = b1.w;
+    float h1 = b1.h;
+    float x2 = b2.x;
+    float y2 = b2.y;
+    float w2 = b2.w;
+    float h2 = b2.h;
+
+    bool xOverlap = false;
+    bool yOverlap = false;
+
+    //calc if there is an overlap in xDir
+    //My brain hurts
+    xOverlap = ((x1 - x2) < w2) || ((x2 - x1) < w1)
+    yOverlap = ((y1 - y2) < h2) || ((y2 - y1) < h1)
+
+    return xOverlap && yOverlap;
+
+
+}
+
+//I appologize in advance that i'm useing arrays - i know it'll propably be inperformant as hell
+//but i hope it'll be enough
+smoothBox lastBoxes[1000];
+int lastBoxesIndex = 0;
+
+//how many frames a box stays at least on the screen
+int smoothingFramesThreshold = 10;
+
+//Adds boxes which are not visible anymore on the display
+//returns the new length of the now doctored boxes array
+int addSmoothingBboxes(box *boxes, int boxesLength)
+{
+    smoothBox newLastBoxes[1000];
+    int newLastBoxesIndex = 0;
+
+    for(int i = 0; i < boxesLength; i++){
+        box b = boxes[i]
+        bool isOverlaped = false;
+
+        for(int j = 0; j < lastBoxesIndex; j++){
+            smoothBox sb = lastBoxes[j]
+
+            if (checkOverlap(b, sb.bbox)){
+                isOverlaped = true;
+
+                sb.framesSinceData = 0;
+                sb.bbox = b;
+
+                //if the sb is over the threshhold the box will be removed from lastBoxes
+                if(sb.framesSinceData <= smoothingFramesThreshold){
+                    newLastBoxes[newLastBoxesIndex] = sb;
+                    newLastBoxesIndex++;
+                }
+
+            } else {
+                sb.framesSinceData++;
+
+                //if the sb is over the threshhold the box will be removed from lastBoxes
+                if(sb.framesSinceData <= smoothingFramesThreshold){
+                    newLastBoxes[newLastBoxesIndex] = sb;
+                    newLastBoxesIndex++;
+                }
+            }
+        }
+
+        if(!isOverlaped){
+            smoothBox newSb;
+            newSb.framesSinceData = 0;
+            newSb.bbox = b;
+        }
+    }
+
+    memcpy(lastBoxes, newLastBoxes, sizeof(newLastBoxes))
+    lastBoxesIndex = newLastBoxesIndex;
+
+    //now the visible boxes are doctored
+    box newboxes[newLastBoxesIndex];
+    for(int i = 0; i < newLastBoxesIndex; i++){
+        newboxes[i] = newLastBoxes[i].bbox;
+    }
+
+    memcpy(boxes, newboxes, sizeof(newboxes));
+    return lastBoxesIndex;
+}
+
 void draw_detections(image im, int num, float thresh, box *boxes, float **probs, char **names, image **alphabet, int classes)
 {
     int i;
+
+    //I hope i'm passing the boxes array correctly here
+    num = addSmoothingBboxes(&boxes, num);
 
     for(i = 0; i < num; ++i){
         int class_id = max_index(probs[i], classes);
