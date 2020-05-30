@@ -1,4 +1,4 @@
-classes = 1
+classes = 3
 train = Ampeln/ampeln_train_RYG.txt
 valid = Ampeln/ampeln_valid_RYG.txt
 names = /home/gott/Desktop/Ampeln/darknet/Ampeln/ampeln_RYG.names

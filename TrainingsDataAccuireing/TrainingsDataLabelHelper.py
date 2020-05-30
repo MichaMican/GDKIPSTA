@@ -59,6 +59,9 @@ def evaluateImage(imgPath):
 
 
     for i, bbox in enumerate(bboxes):
+
+        print(bbox['class'])
+
         color = 'b'
         classId = -1
         if bbox['class'] == "TL_R":
@@ -84,7 +87,7 @@ def evaluateImage(imgPath):
             relWidth = float(width / widthOfImage)
             relHeight = float(height / heightOfImage)
 
-            yoloFileStringContent.append("{} {} {} {} {}".format(str(classId), relXMiddle, relYMiddle, relWidth, relHeight))
+            yoloFileStringContent.append("{} {} {} {} {}\n".format(str(classId), relXMiddle, relYMiddle, relWidth, relHeight))
 
         rect = patches.Rectangle(
             (bbox['left'], bbox['top']),
