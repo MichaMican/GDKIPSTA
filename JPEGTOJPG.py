@@ -21,29 +21,40 @@ def createDir(path):
 
 def resize(fileName):
 
-    if ".jpg" in fileName or ".png" in fileName:
+    if ".jpg" in fileName or ".png" in fileName or ".jpeg" in fileName:
         im = Image.open(scriptPath + fileName, "r")
-        exifData = im._getexif()
+        
+        exifData = None
+
+        
+        try:
+            exifData = im._getexif()
+        except:
+            print("Unable to get exif of " + fileName)
+
+        if exifData != None:
+            if exifData[274] == 6:
+                print("Rotating Img left")
+                im = im.rotate(-90, expand=True)
+            elif exifData[274] == 8:
+                print("Rotating Img right")
+                im = im.rotate(90, expand=True)
+            elif exifData[274] == 3:
+                print("Rotating Img arround")
+                im = im.rotate(180, expand=True)
+
         imageSize = im.size
         width = imageSize[0]
         height = imageSize[1]
-        backgroundwidth = 1600
-        backgroundHeight = 900
 
-        if(width < height):
-            if height > width:
-                backgroundwidth = round((height * (16/9)))
 
-            background = Image.new('RGB', (backgroundwidth, height), (255, 255, 255))
-            offset = (round(backgroundwidth / 2 - width/2), 0)
-
-            background.paste(im, offset)
-            background.save(convertedImagesPath + fileName.split(".")[-2] + ".jpg")
-            print("Images resized !")
+        if ".jpeg" in fileName:
+            im.save(convertedImagesPath + fileName.split(".")[-2] + ".jpg")
+            print("Images converted !")
 
         else:
             im.save(convertedImagesPath + fileName)
-            print("Image not resized !")
+            print("Image not converted!")
 
 
 main()

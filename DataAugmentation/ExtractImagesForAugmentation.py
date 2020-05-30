@@ -20,8 +20,13 @@ def saveImageToFolder(indicator, img, name):
         folderToSave = "TL_Y"
     elif indicator == 2:
         folderToSave = "TL_G"
+    elif indicator == 3:
+        folderToSave = "TS"
+    elif indicator == 4:
+        folderToSave = "TL_RY"
     path = folderToSave + "\\" + name
-    cv2.imwrite(path, img)
+    if img.shape[0] is not 0 and img.shape[1] is not 0 and img.shape[2] is not 0:
+        cv2.imwrite(path, img)
 
     
 def checkForAllFolders():
@@ -31,7 +36,10 @@ def checkForAllFolders():
         os.makedirs("TL_Y")
     if not os.path.exists("TL_G"):
         os.makedirs("TL_G")
-
+    if not os.path.exists("TL_RY"):
+        os.makedirs("TL_RY")
+    if not os.path.exists("TS"):
+        os.makedirs("TS")
 def main():
     checkForAllFolders()
     path = os.getcwd() + "/Dataset"

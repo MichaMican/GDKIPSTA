@@ -5,10 +5,11 @@
 \usepackage[T1]{fontenc}
 \usepackage[ngerman]{babel}
 \usepackage{graphicx}
+\usepackage{setspace}
 
 
 %Adjust the page margins 
-\usepackage[left=3cm, right=3cm, top=3cm, bottom=3cm, a4paper, portrait]{geometry}
+\usepackage[left=3cm, right=3cm, top=2cm, bottom=2cm, a4paper, portrait]{geometry}
 
 %For fancy headers and footers
 \usepackage{fancyhdr}
@@ -51,10 +52,10 @@
 	pdfmenubar=true,       											 % show Acrobatics menu?
 	pdffitwindow=false,     										 % window fit to page when opened
 	pdfstartview={FitH},   											 % fits the width of the page to the window
-	pdftitle={FWP Grundlagen der k�nstlichen Intelligenz},    		 % title
+	pdftitle={FWP Grundlagen der kuenstlichen Intelligenz},    		 % title
 	pdfauthor={Philipp Muhr, Michael Mican, Maximilian Anzinger}, 	 % author
 	pdfsubject={Ampelphasenerkennung},    							 % subject of the document
-	pdfkeywords={K�nstliche Intelligenz, Informatik}, 				 % list of keywords
+	pdfkeywords={Kuenstliche Intelligenz, Informatik}, 				 % list of keywords
 	pdfnewwindow=true,     											 % links in new window
 	colorlinks=true,        										 % false: boxed links; true: colored links
 	linkcolor=black,       											 % color of internal links
@@ -86,8 +87,14 @@
 	\chapter*{Einleitung}
 	%Link zu den Kapiteln inkl. Inhaltsverzeichnis
 	\addcontentsline{toc}{chapter}{Einleitung}
-	
-	\chapter*{Test}
-	\addcontentsline{toc}{chapter}{Test}
+	\begin{onehalfspace}
+		Im Straßenverkehr finden sich viele Herausforderungen. Es müssen viele Situationen vorausgesehen werden, um eine sichere Fahrt zu gewährleisten. Bei immer höher werdenden Verkehrsaufkommen werden es die Fahrer auch in Zukunft nicht einfach haben. Damit die Verkehrssituation sicherer gestaltet werden kann, werden Unmengen an verschiedenen Fahrassistenzsystemen entwickelt. Diese Studienarbeit behandelt ein Assistenzsystem zur leichteren Ampelphasenwahrnehmung. Eine rote Ampel wird schnell übersehen, daher muss auch in dieser Thematik unterstützte Wahrnehmung begünstigt werden. Es soll ein neuronales Netz trainiert werden, das Ampeln und deren unterschiedlichen Schaltphasen (rot, rot-gelb, gelb und grün) erkennen kann. Ziel dieser künstlichen Intelligenz soll sein, dass Sie den Fahrer durch Statusmeldungen in beispielsweise dem Bordmonitor mit der aktuellen Ampelphase informiert. Falls die Sicht des Mobilisten eingeschränkt ist und dieser die Phasen der Ampel nur schwer bis gar nicht erkennen kann soll er sich auf die Anzeige der Ampelerkennung im Bordmonitor verlassen können. Diese Arbeit wird Aufschluss geben, wie die künstliche Intelligenz aufgebaut und trainiert wurde. Außerdem werden unterschiedliche Verfahren im Bereich Image processing beschrieben, um eventuell performantere Ergebnisse zu erzielen. Im ersten Kapitel wird dargelegt, auf welchem neuronalen Netz aufgebaut wurde und wie dieses angelegt wurde.
+	\end{onehalfspace}
+
+	\chapter*{YOLO}
+	\addcontentsline{toc}{chapter}{YOLO}
+	\begin{onehalfspace}
+		test
+	\end{onehalfspace}
 	
 \end{document}
