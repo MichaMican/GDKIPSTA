@@ -90,21 +90,17 @@ def main(pathToImage, saveImageAfterProcessing=True):
         # First third
         if y < ythird:
             sumPixels[0] += cropedGreyImg[y][x]
-            # imgGrey[y][x] = 255
 
         # second third
         elif y < ytwothirds and y > ythird:
             sumPixels[1] += cropedGreyImg[y][x]
-            # imgGrey[y][x] = 100
 
         # third third
         else:
             sumPixels[2] += cropedGreyImg[y][x]
-            # imgGrey[y][x] = 0
 
         if y == ythird or y == ytwothirds:
             pass
-            # imgGrey[y][x] = 255
 
     for i, sumPixel in enumerate(sumPixels):
         #resolution/3 => only thirds of image
