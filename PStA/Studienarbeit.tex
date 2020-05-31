@@ -8,7 +8,8 @@
 \usepackage{setspace}
 
 \graphicspath{ {./Images/} }
-
+\usepackage{listings}
+\lstset{inputpath={./Code/}}
 
 %Adjust the page margins 
 \usepackage[left=3cm, right=3cm, top=2cm, bottom=2cm, a4paper, portrait]{geometry}
@@ -161,19 +162,27 @@
 	\begin{onehalfspace}
 		Data Preprocessing
 	\end{onehalfspace}
-	\chapter{Image Processing}
+	\chapter{Image Processing und Analyse}
 	\begin{onehalfspace}
 		Das Image Processing beschreibt den Vorgang der Aufbereitung des Bildes mithilfe der Daten der KI. Die ursprüngliche Idee war durch diesen Verarbeitungsschritt die Phase der erkannten Ampel zu identifizieren. \newline 
-		Beim ersten Versuch wurden die Detektierten Bounding boxen (Bbox) aus dem Bild herausgeschnitten um so nur noch ein Bild der Ampel zu haben. Der Bildausschnitt wird dann entsättigt und so zu einem Schwarz-Weiß Bild konvertiert (vgl. Abbildung~\ref{fig:TLCrop}). Der Ausschnitt wird dann gleichmäßig in drei Sektoren unterteilt, welche jeweils ein drittel des Bildes abdecken. Es wird nun der Durchschnitts "weiß-" Wert jedes Sektors berechnet und Validiert. Bei diesem Verarbeitungsschritt wird überprüft ob die Analyse ein plausibles Ergebnis geliefert hat. Wenn diese Überprüfung des Datensatzes negativ ausfällt werden nun die original Farbkanäle (von vor der Entsättigung) benutzt. Dabei werden im ersten drittel nur die Rot werte, im zweiten nur die Rot und Grün Kanäle im selben Verhältnis und im dritten Sektor nur die grün werte. Diese werte werden dann auf den selben Wertebereich normalisiert und dann analog zur Entsättigten Variante analysiert und validiert. Das Ergebniss der Analyse setzt sich dann aus den eindeutigsten werten beider Untersuchungsarten zusammen. \newline
-		Diese Ergebnisse erreichten eine Trefferquote von etwa 40\%. Die meisten Fehldetektionen können dadurch begründet werden, dass die Bboxen nicht genau deckend die grenzen der Ampel kennzeichnen und somit die Hintergrundlandschaft hinter der Ampel auf die Analyse Einfluss nimmt. Um dem Entgegenzuwirken wird nur ein 10 Pixel breites band in der Mitte des Bildes analysiert. Somit werden die Ränder aus der Detektion entfernt. (vgl. Abbildung~\ref{fig:TLCrop}) Diese Verbesserung hebt die Detektionsquote auf etwa 60\%.\newline
-		Die Zuschneidung in Y-Richtung gestaltet sich komplizierter. Hierfür wird eine Pixel Spalte im oberen viertel des Bildes in der Mitte betrachtet. Das dunkelste Pixel markiert dann den Obersten beziehungsweise Untersten punkt. Um keine "Pixelausreiser", welche durch das Hintergrundrauschen verursacht werden, als grenze zu detektieren, werden bei Detektion die folgenden 10 Pixel mit überprüft. Es is möglich, dass der dunkelste Bereich im Bild nicht die grenze der Ampel markiert. Um dem Entgegen zu wirken wird der Median aus allen dunklen Pixeln gezogen und ab dem ersten Pixel mit dieser Helligkeit abgeschnitten. (vgl. Abbildung~\ref{fig:TLCrop}) Damit konnte die Detektionsquote leicht verbessert werden.\newline
+		\section{Analyse}
+		Beim ersten Versuch wurden die detektierten Bounding boxen (Bbox) aus dem Bild herausgeschnitten um so nur noch ein Bild der Ampel zu haben. Der Bildausschnitt wird dann entsättigt und so zu einem Schwarz-Weiß Bild konvertiert (vgl. Abbildung~\ref{fig:TLCrop}). Der Ausschnitt wird dann gleichmäßig in drei Sektoren unterteilt, welche jeweils ein drittel des Bildes abdecken. Es wird nun der Durchschnitts "weiß-" Wert jedes Sektors berechnet und Validiert. Bei diesem Verarbeitungsschritt wird überprüft ob die Analyse ein plausibles Ergebnis geliefert hat. Wenn diese Überprüfung des Datensatzes negativ ausfällt werden die ursprünglichen Farbkanäle (von vor der Entsättigung) benutzt. Dabei werden im ersten drittel nur die Rot Werte, im zweiten die Rot und Grün Werte im selben Verhältnis und im dritten Sektor nur die Grün Werte betrachtet. Diese werden dann auf den selben Wertebereich normalisiert und dann analog zur entsättigten Variante analysiert und validiert. Das Ergebniss der Analyse setzt sich dann aus den eindeutigsten werten beider Untersuchungsarten zusammen. \newline
+		Diese Ergebnisse erreichten eine Erkennungsquote von etwa 40\%.
+		\section{Image cropping}
+		Die meisten Fehler können dadurch begründet werden, dass die Bboxen nicht genau deckend die Grenzen der Ampel kennzeichnen und somit die Hintergrundlandschaft hinter der Ampel auf die Analyse Einfluss nimmt. Um dem Entgegenzuwirken wird nur ein 10 Pixel breites Band in der Mitte des Bildes betrachtet. Somit werden die Ränder aus der Detektion entfernt. (vgl. Abbildung~\ref{fig:TLCrop}) \newline
+		Dies verbessert die Erkennungsquote auf etwa 60\%.\newline
+		Die Zuschneidung in Y-Richtung gestaltet sich komplizierter. Hierfür wird eine Pixel Spalte im oberen viertel des Bildes in der Mitte betrachtet. Das dunkelste Pixel markiert dann den obersten beziehungsweise untersten Punkt. Um keine dunklen Pixel "ausreißer" im Hintergrund der Ampel als Grenze zu erkennen, werden bei Detektion die folgenden 10 Pixel mit überprüft. Diese müssen etwa gleich dunkel sein, damit es sich um eine valide Grenze handelt. Es is möglich, dass der dunkelste Bereich im Bild nicht das Ende der Ampel markiert. Um dem Entgegen zu wirken wird der Median aus allen dunklen Pixeln berechnet und dieser als Threshold für die Erkennung der Grenze verwendet. (vgl. Abbildung~\ref{fig:TLCrop}) Damit konnte die Erkennungsquote weiter verbessert werden.\newline
 		\begin{figure}[h!]
 			\includegraphics[width=\linewidth]{TLCropping.jpg}
 			\caption{Analyse schritte}
 			\label{fig:TLCrop}
 		\end{figure}
-		\section{Probleme}
-		Dieser Ansatz bringt unzufrieden stellende Ergebnisse. Viele Detektionen sind Falsch oder knapp richtig (unterschiede der Durchschnitte der Sektionen gering). Die Zuschneidung in x-Richtung muss sich auf eine möglichst gleichmäßige Detektion verlassen, da der Ausschnitt ansonsten nicht mittig der Ampel befindet. Die Zuschneidung in y-Richtung ist abhängig der licht und Umgebungsverhältnisse mal genauer mal weniger genau und so nicht robust einsetzbar. Weitere Probleme bei der Detektion der grenzen entstehen, wenn die Ampel nicht Schwarz ist, was in einigen Ländern, wie zum Beispiel dem Vereinigten Königreiches, häufig vorkommt. Hinzu kommt, dass dieses System nur funktional ist, wenn die Ampel aufrecht hängt. Aus diesen Gründen wurde dieser Versuch für das finale Ergebnis nicht mit einbezogen und es wurde eine Lösung mit einem neuronalen Netz umgesetzt.
+		\section{Umsetzung}
+		Für das Image Processing und die Image Analyse wurde die Scriptsprache Python verwendet um ein einfaches prototypisches implementieren der Algorithmen zu ermöglichen. Bei erfolgreichen Prototyp wäre das Programm in C portiert worden um die Berechnungszeit zu verringern. Es wurden zunächst Testbilder verwendet, welche mit der Python Bibliothek openCV eingelesen und zugeschnitten wurden. Außerdem wurde numpy verwendet um den Umgang mit den Bildarrays zu erleichtern. (vgl. Code~\ref{lst:ImgCropCode} und Code~\ref{lst:ImgAnalyCode})
+		\lstinputlisting[language=Python, firstline=8,lastline=61,basicstyle=\tiny,caption={Image cropping code},captionpos=b,label={lst:ImgCropCode}]{ImageProcessingPrototype.py}
+		\lstinputlisting[language=Python, firstline=77,lastline=122,basicstyle=\tiny,caption={Image Analyse (greyscale)},captionpos=b,label={lst:ImgAnalyCode}]{ImageProcessingPrototype.py}
+		\section{Probleme dieses Ansatzes}
+		Insgesamt bringt dieser Ansatz mangelhafte Ergebnisse. Viele Detektionen sind Falsch oder knapp richtig (Unterschiede in den Sektoren sind gering). Das Zuschneiden in x-Richtung muss sich auf eine möglichst richtige Bbox verlassen, da sich die Ampel ansonsten nicht mittig des Ausschnitts befindet. Die Genauigkeit des Zuschneiden in y-Richtung ist stark abhängig von den Licht und Umgebungsverhältnissen und somit nicht verlässlich einsetzbar. Weitere Probleme bei der Detektion der Grenzen entstehen, wenn die Ampel nicht Schwarz ist, was in einigen Ländern, wie zum Beispiel dem Vereinigten Königreiches, häufig vorkommen kann. Hinzu kommt, dass dieses System nur funktional ist, wenn die Ampel aufrecht hängt. Da nur eines dieser Probleme auftreten muss um das Ergebnis zu verfälschen wurde der Versuch die Ampelphasen durch Image Processing zu erkennen im finalen Ergebnis nicht eingesetzt und es wurde eine Lösung mit einem neuronalen Netz realisiert.
 		
 		
 	\end{onehalfspace}
