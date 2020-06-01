@@ -3,6 +3,7 @@
 
 #include "image.h"
 #include "matrix.h"
+#include <stdbool.h>
 
 
 #ifdef __cplusplus
@@ -13,6 +14,7 @@ typedef struct
 {
     short framesSinceData;
     detection det;
+    bool overlaped;
 } smoothingDetection;
 
 #ifdef OPENCV

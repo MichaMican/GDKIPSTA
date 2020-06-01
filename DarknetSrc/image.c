@@ -439,30 +439,6 @@ void draw_detections_v3(image im, detection *dets, int num, float thresh, char *
     free(selected_detections);
 }
 
-
-bool checkOverlap(box b1, box b2){
-    float x1 = b1.x;
-    float y1 = b1.y;
-    float w1 = b1.w;
-    float h1 = b1.h;
-    float x2 = b2.x;
-    float y2 = b2.y;
-    float w2 = b2.w;
-    float h2 = b2.h;
-
-    bool xOverlap = false;
-    bool yOverlap = false;
-
-    //calc if there is an overlap in xDir
-    //My brain hurts
-    xOverlap = ((x1 - x2) < w2) || ((x2 - x1) < w1)
-    yOverlap = ((y1 - y2) < h2) || ((y2 - y1) < h1)
-
-    return xOverlap && yOverlap;
-
-
-}
-
 void draw_detections(image im, int num, float thresh, box *boxes, float **probs, char **names, image **alphabet, int classes)
 {
     int i;

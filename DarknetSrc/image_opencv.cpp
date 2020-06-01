@@ -902,62 +902,70 @@ extern "C" int addSmoothingDets(detection *dets, int detsLength)
     smoothingDetection newLastDets[1000];
     int newLastDetsIndex = 0;
 
+    for(int j = 0; j < lastDetsIndex; j++){
+        lastDets[j].framesSinceData++;
+        lastDets[j].overlaped = false;
+    }
+
     for(int i = 0; i < detsLength; i++){
         detection d = dets[i];
         box b = d.bbox;
-        bool isOverlaped = false;
 
         for(int j = 0; j < lastDetsIndex; j++){
-            smoothingDetection sd = lastDets[j];
-
-            if (checkOverlap(b, sd.det.bbox)){
-                isOverlaped = true;
-
-                sd.framesSinceData = 0;
-                sd.det.bbox = b;
-
-                newLastDets[newLastDetsIndex] = sd;
-                newLastDetsIndex++;
-
-            } else {
-                //no overlap of box detected so framesSinceData are counted up
-                sd.framesSinceData++;
-
-                //if the sb is over the threshhold the box will be removed from lastBoxes
-                if(sd.framesSinceData <= smoothingFramesThreshold){
-                    newLastDets[newLastDetsIndex] = sd;
-                    newLastDetsIndex++;
-                }
+            if (checkOverlap(b, lastDets[j].det.bbox)){
+                printf("overlaped\n");
+                lastDets[j].overlaped = true;
             }
         }
 
-        if(!isOverlaped){
-            smoothingDetection newSd;
-            newSd.framesSinceData = 0;
-            newSb.det = d;
+        smoothingDetection newSd;
+        newSd.framesSinceData = 0;
+        newSd.det = d;
+        newSd.overlaped = false;
 
-            newLastDets[newLastDetsIndex] = newSd;
-            newLastDetsIndex++;
+        newLastDets[newLastDetsIndex] = newSd;
+        newLastDetsIndex++;
+    }
+
+
+    printf("there are %d boxes buffered!\n", lastDetsIndex);
+    for(int j = 0; j < lastDetsIndex; j++){        
+        //if the sb is over the threshhold the box will be removed from lastBoxes
+        if(lastDets[j].framesSinceData <= smoothingFramesThreshold){
+            if(!lastDets[j].overlaped){
+                printf("I'm adding saved Boxes\n");
+                newLastDets[newLastDetsIndex] = lastDets[j];
+                newLastDetsIndex++;
+            } else {
+                printf("Box updated\n");
+            }
+        }else {
+            printf("Box got to old so it was deleted\n");
         }
     }
 
-    memcpy(lastDets, newLastDets, sizeof(newLastDets))
+    memcpy(lastDets, newLastDets, sizeof(newLastDets));
     lastDetsIndex = newLastDetsIndex;
 
+
     //now the visible dets are doctored
-    dets newDets[newLastDetsIndex];
+    detection newDets[newLastDetsIndex];
     for(int i = 0; i < newLastDetsIndex; i++){
         newDets[i] = newLastDets[i].det;
     }
 
     memcpy(dets, newDets, sizeof(newDets));
+
     return newLastDetsIndex;
 }
 
 extern "C" void draw_detections_cv_v3(mat_cv* mat, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, int ext_output)
 {
 
+    //See telegram memo for fix
+    printf("Num before %d\n", num);
     num = addSmoothingDets(dets, num);
+    printf("Num after %d\n", num);
 
     try {
         cv::Mat *show_img = (cv::Mat*)mat;
