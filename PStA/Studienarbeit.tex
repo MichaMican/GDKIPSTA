@@ -9,7 +9,20 @@
 
 \graphicspath{ {./Images/} }
 \usepackage{listings}
-\lstset{inputpath={./Code/}}
+\lstset{
+	inputpath={./Code/},
+	language=Python,
+	basicstyle=\tiny,
+	numbers=left,
+	stepnumber=1,
+	showstringspaces=false,
+	tabsize=1,
+	breaklines=true,
+	breakatwhitespace=false,
+}
+
+
+\usepackage{gensymb}
 
 \usepackage{chngcntr}
 \counterwithout{footnote}{chapter}
@@ -162,6 +175,11 @@
 	\chapter{Labeling}
 	\begin{onehalfspace}
 		Labeling
+		\section{Probleme}
+			\subsection{Bildkonvertierung}
+				Das Yolo Label Tool (YLT) akzeptiert nur jpg und png Dateien. Bei der Generierung von Trainingsdaten wurden Photos mit verschiedenen Smartphones gemacht. Android Geräte speichern Bilder bereits im jpg Format, wohingegen Apple Geräte und einige Spiegelreflex Kameras im jpeg Format speichern. Zunächst wurde eine Konvertierung durch umbenennen der Dateiendungen von "`.jpeg"' zu "`.jpg"' versucht. Die so konvertierten Bilder können nun zwar von YLT gelesen werden, jedoch sind Bilder, welche im sogenannten Portrait-Modus, also "`Hochkannt"', aufgenommen wurden, falsch rotiert. Dies liegt dadran, dass jpeg die Bilder in der ursprünglichen Kamerasensor Orientation speichert und dann in den Exif Daten des Bildes eine Flag setzt, welche dem Anzeige Programm mitteilt wie das Bild rotiert werden muss um richtig angezeigt zu werden. Diese Flag geht bei der Konvertierung verloren. Daher müssen sowohl das Bild als auch die Exif daten mit der Python Imaging Library eingelesen werden. Abhängig vom Inhalt der "`Orientation Flag"' (Flag nr. 274) wird das Bild um 90\degree, -90\degree oder 180\degree rotiert (vgl Code~\ref{lst:jpeg2jpgCode}). Das fertige Bild wird dann als jpg in einem eigenen Ordner gespeichert und kann nun für den Labeling prozess verwendet werden.
+				\lstinputlisting[language=Python, firstline=27,lastline=36,basicstyle=\tiny,caption={auszug aus jpeg zu jpg Konvertierungs-Code},captionpos=b,label={lst:jpeg2jpgCode}]{JPEGTOJPG.py}
+			
 	\end{onehalfspace}
 	\chapter{Data Preprocessing}
 	\begin{onehalfspace}
@@ -184,8 +202,8 @@
 		\end{figure}
 		\section{Umsetzung}
 		Für das Image Processing und die Image Analyse wurde die Scriptsprache Python verwendet um ein einfaches prototypisches implementieren der Algorithmen zu ermöglichen. Bei erfolgreichen Prototyp wäre das Programm in C portiert worden um die Berechnungszeit zu verringern. Es wurden zunächst Testbilder verwendet, welche mit der Python Bibliothek openCV eingelesen und zugeschnitten wurden. Außerdem wurde numpy verwendet um den Umgang mit den Bildarrays zu erleichtern (vgl. Code~\ref{lst:ImgCropCode} und Code~\ref{lst:ImgAnalyCode}). Um die Bilder von darknet in Python zu nutzen wird der Wrapper darknetpy\footnote{https://github.com/danielgatis/darknetpy, besucht am 31.05.2020} verwendet.
-		\lstinputlisting[language=Python, firstline=8,lastline=61,basicstyle=\tiny,caption={Image cropping code},captionpos=b,label={lst:ImgCropCode}]{ImageProcessingPrototype.py}
-		\lstinputlisting[language=Python, firstline=77,lastline=118,basicstyle=\tiny,caption={Image Analyse (greyscale)},captionpos=b,label={lst:ImgAnalyCode}]{ImageProcessingPrototype.py}
+		\lstinputlisting[language=Python, firstline=8,lastline=61,basicstyle=\tiny,caption={Auszug aus dem Image cropping Code},captionpos=b,label={lst:ImgCropCode}]{ImageProcessingPrototype.py}
+		\lstinputlisting[language=Python, firstline=77,lastline=118,basicstyle=\tiny,caption={Auszug aus dem Image Analyse (greyscale) Code},captionpos=b,label={lst:ImgAnalyCode}]{ImageProcessingPrototype.py}
 		\section{Probleme dieses Ansatzes}
 		Insgesamt bringt dieser Ansatz mangelhafte Ergebnisse. Viele Detektionen sind Falsch oder knapp richtig (Unterschiede in den Sektoren sind gering). Das Zuschneiden in x-Richtung muss sich auf eine möglichst richtige Bbox verlassen, da sich die Ampel ansonsten nicht mittig des Ausschnitts befindet. Die Genauigkeit des Zuschneiden in y-Richtung ist stark abhängig von den Licht und Umgebungsverhältnissen und somit nicht verlässlich einsetzbar. Weitere Probleme bei der Detektion der Grenzen entstehen, wenn die Ampel nicht Schwarz ist, was in einigen Ländern, wie zum Beispiel dem Vereinigten Königreiches, häufig vorkommen kann. Hinzu kommt, dass dieses System nur funktional ist, wenn die Ampel aufrecht hängt. Da nur eines dieser Probleme auftreten muss um das Ergebnis zu verfälschen wurde der Versuch die Ampelphasen durch Image Processing zu erkennen im finalen Ergebnis nicht eingesetzt und es wurde eine Lösung mit einem neuronalen Netz realisiert.
 		
