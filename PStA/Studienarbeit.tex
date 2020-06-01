@@ -176,12 +176,23 @@
 		\section{Image cropping}
 		Die meisten Fehler können dadurch begründet werden, dass die Bboxen nicht genau deckend die Grenzen der Ampel kennzeichnen und somit die Hintergrundlandschaft hinter der Ampel auf die Analyse Einfluss nimmt. Um dem Entgegenzuwirken wird nur ein 10 Pixel breites Band in der Mitte des Bildes betrachtet. Somit werden die Ränder aus der Detektion entfernt. (vgl. Abbildung~\ref{fig:TLCrop}) \newline
 		Dies verbessert die Erkennungsquote auf etwa 60\%.\newline
-		Die Zuschneidung in Y-Richtung gestaltet sich komplizierter. Hierfür wird eine Pixel Spalte im oberen viertel des Bildes in der Mitte betrachtet. Das dunkelste Pixel markiert dann den obersten beziehungsweise untersten Punkt. Um keine dunklen Pixel "ausreißer" im Hintergrund der Ampel als Grenze zu erkennen, werden bei Detektion die folgenden 10 Pixel mit überprüft. Diese müssen etwa gleich dunkel sein, damit es sich um eine valide Grenze handelt. Es is möglich, dass der dunkelste Bereich im Bild nicht das Ende der Ampel markiert. Um dem Entgegen zu wirken wird der Median aus allen dunklen Pixeln berechnet und dieser als Threshold für die Erkennung der Grenze verwendet. (vgl. Abbildung~\ref{fig:TLCrop}) Damit konnte die Erkennungsquote weiter verbessert werden.\newline
+		Die Zuschneidung in Y-Richtung gestaltet sich komplizierter. Hierfür wird eine Pixel Spalte im oberen viertel des Bildes in der Mitte betrachtet. Das dunkelste Pixel markiert dann den obersten beziehungsweise untersten Punkt. Um keine dunklen Pixel "`ausreißer"' im Hintergrund der Ampel als Grenze zu erkennen, werden bei Detektion die folgenden 10 Pixel mit überprüft. Diese müssen etwa gleich dunkel sein, damit es sich um eine valide Grenze handelt. Es is möglich, dass der dunkelste Bereich im Bild nicht das Ende der Ampel markiert. Um dem Entgegen zu wirken wird der Median aus allen dunklen Pixeln berechnet und dieser als Threshold für die Erkennung der Grenze verwendet. (vgl. Abbildung~\ref{fig:TLCrop}) Damit konnte die Erkennungsquote weiter verbessert werden.\newline
 		\begin{figure}[h!]
 			\includegraphics[width=\linewidth]{TLCropping.jpg}
 			\caption{Analyse schritte}
 			\label{fig:TLCrop}
 		\end{figure}
+		\section{Kreiserkennung}
+		Im nächsten Ansatz sollten die einzelnen Rundungen der Ampel durch Kantenerkennung erfasst werden. Ziel dieses Verfahrens ist es, die einzelnen Ampellichter herauszufiltern, um danach herausfinden zu können welche der Leuchten eingeschaltet ist. Dafür wurde OpenCV als mögliche Lösung gewählt, da diese Bibliothek bereits eine Funktion beinhaltet, die in der Lage ist, Kreise zu detektieren und zu zeichnen. In den folgenden Code Zeilen (Kreiserkennung Code~\ref{lst:KreisCode}) wird versucht, die Kreise in einem vorgegebenen Bild zu erkennen.
+		\lstinputlisting[language=Python, firstline=14,lastline=17,basicstyle=\tiny,caption={Kreiserkennung Code},captionpos=b,label={lst:KreisCode}]{Kreiserkennung.py}
+		Dabei legt param1 den Threshold der Kantenerkennung und param2 den Akkumulator Threshold des Kreiszentrums fest. Hier geeignete Werte universell für jedes Bild herauszufinden ist eine große Herausforderung und nahezu nicht möglich. Es gibt Bilder, in welchen diese Erkennung erstaunlich gut funktioniert, allerdings ist dieses Verfahren insgesamt zu ungenau. Auch bei Bildern mit klar erkennbaren Kreiskanten sind die gezeichneten Kreise nicht genau genug positioniert.
+		\begin{figure}[h!]
+			\includegraphics[width=\linewidth]{circles_detected.jpg}
+			\caption{Beispielbild erkannte Kreise}
+			\label{fig:CirclesDetected}
+		\end{figure}
+		\newline
+		Folglich wurde sich gegen die OpenCV Kreiserkennung entschieden, da die Wahrscheinlichkeit zu gering ist, um die einzelnen Ampelrundungen zu erkennen.
 		\section{Umsetzung}
 		Für das Image Processing und die Image Analyse wurde die Scriptsprache Python verwendet um ein einfaches prototypisches implementieren der Algorithmen zu ermöglichen. Bei erfolgreichen Prototyp wäre das Programm in C portiert worden um die Berechnungszeit zu verringern. Es wurden zunächst Testbilder verwendet, welche mit der Python Bibliothek openCV eingelesen und zugeschnitten wurden. Außerdem wurde numpy verwendet um den Umgang mit den Bildarrays zu erleichtern (vgl. Code~\ref{lst:ImgCropCode} und Code~\ref{lst:ImgAnalyCode}). Um die Bilder von darknet in Python zu nutzen wird der Wrapper darknetpy\footnote{https://github.com/danielgatis/darknetpy, besucht am 31.05.2020} verwendet.
 		\lstinputlisting[language=Python, firstline=8,lastline=61,basicstyle=\tiny,caption={Image cropping code},captionpos=b,label={lst:ImgCropCode}]{ImageProcessingPrototype.py}
