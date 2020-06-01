@@ -463,77 +463,9 @@ bool checkOverlap(box b1, box b2){
 
 }
 
-//I appologize in advance that i'm useing arrays - i know it'll propably be inperformant as hell
-//but i hope it'll be enough
-smoothBox lastBoxes[1000];
-int lastBoxesIndex = 0;
-
-//how many frames a box stays at least on the screen
-int smoothingFramesThreshold = 10;
-
-//Adds boxes which are not visible anymore on the display
-//returns the new length of the now doctored boxes array
-int addSmoothingBboxes(box *boxes, int boxesLength)
-{
-    smoothBox newLastBoxes[1000];
-    int newLastBoxesIndex = 0;
-
-    for(int i = 0; i < boxesLength; i++){
-        box b = boxes[i]
-        bool isOverlaped = false;
-
-        for(int j = 0; j < lastBoxesIndex; j++){
-            smoothBox sb = lastBoxes[j]
-
-            if (checkOverlap(b, sb.bbox)){
-                isOverlaped = true;
-
-                sb.framesSinceData = 0;
-                sb.bbox = b;
-
-                //if the sb is over the threshhold the box will be removed from lastBoxes
-                if(sb.framesSinceData <= smoothingFramesThreshold){
-                    newLastBoxes[newLastBoxesIndex] = sb;
-                    newLastBoxesIndex++;
-                }
-
-            } else {
-                sb.framesSinceData++;
-
-                //if the sb is over the threshhold the box will be removed from lastBoxes
-                if(sb.framesSinceData <= smoothingFramesThreshold){
-                    newLastBoxes[newLastBoxesIndex] = sb;
-                    newLastBoxesIndex++;
-                }
-            }
-        }
-
-        if(!isOverlaped){
-            smoothBox newSb;
-            newSb.framesSinceData = 0;
-            newSb.bbox = b;
-        }
-    }
-
-    memcpy(lastBoxes, newLastBoxes, sizeof(newLastBoxes))
-    lastBoxesIndex = newLastBoxesIndex;
-
-    //now the visible boxes are doctored
-    box newboxes[newLastBoxesIndex];
-    for(int i = 0; i < newLastBoxesIndex; i++){
-        newboxes[i] = newLastBoxes[i].bbox;
-    }
-
-    memcpy(boxes, newboxes, sizeof(newboxes));
-    return lastBoxesIndex;
-}
-
 void draw_detections(image im, int num, float thresh, box *boxes, float **probs, char **names, image **alphabet, int classes)
 {
     int i;
-
-    //I hope i'm passing the boxes array correctly here
-    num = addSmoothingBboxes(&boxes, num);
 
     for(i = 0; i < num; ++i){
         int class_id = max_index(probs[i], classes);

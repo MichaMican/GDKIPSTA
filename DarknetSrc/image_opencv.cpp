@@ -864,8 +864,101 @@ extern "C" void save_cv_jpg(mat_cv *img_src, const char *name)
 // ====================================================================
 // Draw Detection
 // ====================================================================
+
+
+extern "C" bool checkOverlap(box b1, box b2){
+    float x1 = b1.x;
+    float y1 = b1.y;
+    float w1 = b1.w;
+    float h1 = b1.h;
+    float x2 = b2.x;
+    float y2 = b2.y;
+    float w2 = b2.w;
+    float h2 = b2.h;
+
+    bool xOverlap = false;
+    bool yOverlap = false;
+
+    //calc if there is an overlap in xDir
+    //My brain hurts
+    xOverlap = ((x1 - x2) < w2) || ((x2 - x1) < w1);
+    yOverlap = ((y1 - y2) < h2) || ((y2 - y1) < h1);
+
+    return xOverlap && yOverlap;
+}
+
+//I appologize in advance that i'm useing arrays - i know it'll propably be inperformant as hell
+//but i hope it'll be enough
+smoothingDetection lastDets[1000];
+int lastDetsIndex = 0;
+
+//how many frames a box stays at least on the screen
+int smoothingFramesThreshold = 10;
+
+//Adds boxes which are not visible anymore on the display
+//returns the new length of the now doctored boxes array
+extern "C" int addSmoothingDets(detection *dets, int detsLength)
+{
+    smoothingDetection newLastDets[1000];
+    int newLastDetsIndex = 0;
+
+    for(int i = 0; i < detsLength; i++){
+        detection d = dets[i];
+        box b = d.bbox;
+        bool isOverlaped = false;
+
+        for(int j = 0; j < lastDetsIndex; j++){
+            smoothingDetection sd = lastDets[j];
+
+            if (checkOverlap(b, sd.det.bbox)){
+                isOverlaped = true;
+
+                sd.framesSinceData = 0;
+                sd.det.bbox = b;
+
+                newLastDets[newLastDetsIndex] = sd;
+                newLastDetsIndex++;
+
+            } else {
+                //no overlap of box detected so framesSinceData are counted up
+                sd.framesSinceData++;
+
+                //if the sb is over the threshhold the box will be removed from lastBoxes
+                if(sd.framesSinceData <= smoothingFramesThreshold){
+                    newLastDets[newLastDetsIndex] = sd;
+                    newLastDetsIndex++;
+                }
+            }
+        }
+
+        if(!isOverlaped){
+            smoothingDetection newSd;
+            newSd.framesSinceData = 0;
+            newSb.det = d;
+
+            newLastDets[newLastDetsIndex] = newSd;
+            newLastDetsIndex++;
+        }
+    }
+
+    memcpy(lastDets, newLastDets, sizeof(newLastDets))
+    lastDetsIndex = newLastDetsIndex;
+
+    //now the visible dets are doctored
+    dets newDets[newLastDetsIndex];
+    for(int i = 0; i < newLastDetsIndex; i++){
+        newDets[i] = newLastDets[i].det;
+    }
+
+    memcpy(dets, newDets, sizeof(newDets));
+    return newLastDetsIndex;
+}
+
 extern "C" void draw_detections_cv_v3(mat_cv* mat, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, int ext_output)
 {
+
+    num = addSmoothingDets(dets, num);
+
     try {
         cv::Mat *show_img = (cv::Mat*)mat;
         int i, j;

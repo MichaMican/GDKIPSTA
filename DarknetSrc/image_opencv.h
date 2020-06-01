@@ -4,9 +4,16 @@
 #include "image.h"
 #include "matrix.h"
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct
+{
+    short framesSinceData;
+    detection det;
+} smoothingDetection;
 
 #ifdef OPENCV
 
