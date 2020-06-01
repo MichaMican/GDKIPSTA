@@ -119,7 +119,7 @@
 		Im Nachfolgenden wird das, von uns genutzte, Netzwerk YoloV3-tiny genauer erklärt bzw. allgemein auf das Konzept von YOLO eingegangen.
 		\section{YOLO}
 		\subsection{Yolo allgemein}
-		YOLO ist laut offizieller Aussage ein "`Echtzeit Objekterkennungs System"
+		YOLO ist laut offizieller Aussage ein "`Echtzeit Objekterkennungs System"'
 		\footnote{"https://pjreddie.com/darknet/yolo/", besucht am 30.05.2020 (eigene Übersetzung)},
 		welches vorallem auf Geschwindigkeit bei trotzdem gut bleibender Genauigkeit setzt.\\
 		YOLO nutzt im Gegensatz zu vielen herkömmlichen Objekterkennungsnetzen (wie z.B. Faster-RCNN oder Mask-RCNN) nicht mehrerer Netze hintereinander, bei dem z.B. das erste durch ein sog. Region Proposal Network dargestellt wird (welches interessante Regionen herausfiltert), sondern geht "`einen völlig anderen Weg und schaut nur ein einziges Mal auf das Bild"
@@ -174,11 +174,15 @@
 	\end{onehalfspace}
 	\chapter{Labeling}
 	\begin{onehalfspace}
-		Labeling
+		In diesem Kapitel wird beschrieben, wie beim Labeln der einzelnen Bilder vorgegangen wurde. Labeln ist der Vorgang, bei dem in unterschiedlichen Bildern Objekte markiert werden, die die künstliche Intelligenz später als definierte Klasse identifizieren soll.
+		\section{Datenbeschaffung / Open Image Dataset (OID)}
+		Anfangs wurden durch das OIDv4\_ToolKit\footnote{"https://github.com/TheAiGuysCode/OIDv4\_toolkit", besucht am 01.06.2020} Bilder aus dem OID von Google heruntergeladen. Die Bilder waren bereits nach Thematik Ampel beziehungsweise Straßenschilder gelabelt. Leider konnte der Datensatz so nicht direkt verwendet werden, da unsere künstliche Intelligenz auch die Ampelphasen erkennen soll. Ergo wurden alle Bilder mithilfe von Yolo\_Label\footnote{"https://github.com/developer0hye/Yolo\_Label", besucht am 01.06.2020} neu klassifiziert. Was außerdem erwähnt werden muss, ist die Unterstützung familiärer Seite, welche bei der Beschaffung von Bildern der Ampelphasen und Straßenschildern nachgeholfen haben, indem Bilder selbst aufgenommen wurden. Das half vor allem der Erkennung von rot-gelb und gelb Phasen bei Ampeln, da wenige Aufnahmen dieser Phasen im OID vorhanden waren.
+		\section{Yolo\_Label}
+		Yolo\_Label ist ein Tool, mit dem Objekte in einem Bild durch einen rechteckigen Rahmen, beispielsweise zum Trainieren einer künstliche Intelligenz, gekennzeichnet werden können. Dazu wird ein Datensatz mit einer Menge an Bildern für die entsprechende Thematik benötigt. Weiterhin muss eine Textdatei erstellt werden, in der die gewünschten Klassen, wie zum Beispiel "`rote Ampel"' bestimmt werden. Wenn beides vorhanden ist, können die gewünschten Objekte in den Bildern nach ausgewählter Klasse gelabelt werden.
 		\section{Probleme}
 			\subsection{Bildkonvertierung}
-				Das Yolo Label Tool (YLT) akzeptiert nur jpg und png Dateien. Bei der Generierung von Trainingsdaten wurden Photos mit verschiedenen Smartphones gemacht. Android Geräte speichern Bilder bereits im jpg Format, wohingegen Apple Geräte und einige Spiegelreflex Kameras im jpeg Format speichern. Zunächst wurde eine Konvertierung durch umbenennen der Dateiendungen von "`.jpeg"' zu "`.jpg"' versucht. Die so konvertierten Bilder können nun zwar von YLT gelesen werden, jedoch sind Bilder, welche im sogenannten Portrait-Modus, also "`Hochkannt"', aufgenommen wurden, falsch rotiert. Dies liegt dadran, dass jpeg die Bilder in der ursprünglichen Kamerasensor Orientation speichert und dann in den Exif Daten des Bildes eine Flag setzt, welche dem Anzeige Programm mitteilt wie das Bild rotiert werden muss um richtig angezeigt zu werden. Diese Flag geht bei der Konvertierung verloren. Daher müssen sowohl das Bild als auch die Exif daten mit der Python Imaging Library eingelesen werden. Abhängig vom Inhalt der "`Orientation Flag"' (Flag nr. 274) wird das Bild um 90\degree, -90\degree oder 180\degree rotiert (vgl Code~\ref{lst:jpeg2jpgCode}). Das fertige Bild wird dann als jpg in einem eigenen Ordner gespeichert und kann nun für den Labeling prozess verwendet werden.
-				\lstinputlisting[language=Python, firstline=27,lastline=36,basicstyle=\tiny,caption={auszug aus jpeg zu jpg Konvertierungs-Code},captionpos=b,label={lst:jpeg2jpgCode}]{JPEGTOJPG.py}
+				Das Yolo Label Tool (YLT) akzeptiert nur jpg und png Dateien. Bei der Generierung von Trainingsdaten wurden Photos mit verschiedenen Smartphones gemacht. Android Geräte speichern Bilder bereits im jpg Format, wohingegen Apple Geräte und einige Spiegelreflex Kameras im jpeg Format speichern. Zunächst wurde eine Konvertierung durch umbenennen der Dateiendungen von "`.jpeg"' zu "`.jpg"' versucht. Die so konvertierten Bilder können nun zwar von YLT gelesen werden, jedoch sind Bilder, welche im sogenannten Portrait-Modus, also "`Hochkannt"', aufgenommen wurden, falsch rotiert. Dies liegt daran, dass jpeg die Bilder in der ursprünglichen Kamerasensor Orientierung speichert und dann in den Exif Daten des Bildes eine Flag setzt, welche dem Anzeige Programm mitteilt wie das Bild rotiert werden muss um richtig angezeigt zu werden. Diese Flag geht bei der Konvertierung verloren. Daher müssen sowohl das Bild als auch die Exif daten mit der Python Imaging Library eingelesen werden. Abhängig vom Inhalt der "`Orientierung Flag"' (Flag nr. 274) wird das Bild um 90\degree, -90\degree oder 180\degree rotiert (vgl Code~\ref{lst:jpeg2jpgCode}). Das fertige Bild wird dann als jpg in einem eigenen Ordner gespeichert und kann nun für den Labeling prozess verwendet werden.
+				\lstinputlisting[language=Python, firstline=27,lastline=36,basicstyle=\tiny,caption={Auszug aus jpeg zu jpg Konvertierungs-Code},captionpos=b,label={lst:jpeg2jpgCode}]{JPEGTOJPG.py}
 			
 	\end{onehalfspace}
 	\chapter{Data Preprocessing}
@@ -222,15 +226,11 @@
 	\end{onehalfspace}
 	\chapter{Data augmentation}
 	\begin{onehalfspace}
-		Data Augmentation
-	\end{onehalfspace}
-	\chapter{Probleme}
-	\begin{onehalfspace}
-		Probleme
+		Data Augmentation (zu deutsch Daten Augmentierung) ist ein Verfahren, das gerne im Bereich der neuronalen Netzwerke zum Training angewandt wird. Dabei werden vorhandene Bilder eines Datensatzes nach verschiedenen Methoden abgeändert, um den vorhandenen Datensatz zu erweitern, ohne einen anderen Datensatz suchen zu müssen. In diesem Projekt wurden die Bereits gelabelten Bereiche ausgeschnitten und als einzelne Bilddateien gespeichert. Diese wurden dann minimal geändert, durch Einfügen eines Rauschen oder ähnlichem und dann in andere Bilder eingefügt. Manche Bilder werden gar nicht verändert, aber trotzdem in andere Bildumgebungen eingebaut. Da der "`Einfügeort"' auf dem neuen Bild bekannt ist, kann auch das neue Label automatisch hinzugefügt werden. Dadurch müssen die neuen augmentierten Bilder nicht erneut gelabelt werden. In dieser Projektarbeit wurde extra für diese Aufgabe ein passendes Python Skript geschrieben, das sich ausschließlich um die Augmentation des Datensatzes kümmert.
 	\end{onehalfspace}
 	\chapter{Schlusswort}
 	\begin{onehalfspace}
-		Schlusswort
+		Als Ergebnis präsentiert die Studienarbeit eine funktionstüchtige künstliche Intelligenz, die in der Lage ist Ampelphasen und Straßenschilder zu erkennen. Straßenschilder werden nur erkannt, damit der Algorithmus nicht fälschlicherweise ein Schild als Ampel erkennen kann, da dies speziell bei Parkverbotsschilder ein großes Problem war. In seltenen Fällen kann dies jedoch dennoch eintreten.
 	\end{onehalfspace}
 	
 \end{document}
