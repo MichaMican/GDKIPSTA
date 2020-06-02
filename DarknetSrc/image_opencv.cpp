@@ -897,7 +897,7 @@ int smoothingFramesThreshold = 10;
 
 //Adds boxes which are not visible anymore on the display
 //returns the new length of the now doctored boxes array
-extern "C" int addSmoothingDets(detection *dets, int detsLength)
+extern "C" detection *addSmoothingDets(detection *dets, int detsLength)
 {
     smoothingDetection newLastDets[1000];
     int newLastDetsIndex = 0;
@@ -954,18 +954,17 @@ extern "C" int addSmoothingDets(detection *dets, int detsLength)
         newDets[i] = newLastDets[i].det;
     }
 
-    memcpy(dets, newDets, sizeof(newDets));
-
-    return newLastDetsIndex;
+    //memcpy(dets, newDets, sizeof(newDets));
+    return newDets;
 }
 
 extern "C" void draw_detections_cv_v3(mat_cv* mat, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, int ext_output)
 {
-
     //See telegram memo for fix
     printf("Num before %d\n", num);
-    num = addSmoothingDets(dets, num);
-    printf("Num after %d\n", num);
+    auto newDetections = addSmoothingDets(dets, num);
+    newDetSize = sizeof(newDetections)/sizeof(detection);
+    printf("Num after %d\n", newDetSize);
 
     try {
         cv::Mat *show_img = (cv::Mat*)mat;
@@ -974,24 +973,24 @@ extern "C" void draw_detections_cv_v3(mat_cv* mat, detection *dets, int num, flo
         static int frame_id = 0;
         frame_id++;
 
-        for (i = 0; i < num; ++i) {
+        for (i = 0; i < newDetSize; ++i) {
             char labelstr[4096] = { 0 };
             int class_id = -1;
             for (j = 0; j < classes; ++j) {
                 int show = strncmp(names[j], "dont_show", 9);
-                if (dets[i].prob[j] > thresh && show) {
+                if (newDetections[i].prob[j] > thresh && show) {
                     if (class_id < 0) {
                         strcat(labelstr, names[j]);
                         class_id = j;
                         char buff[10];
-                        sprintf(buff, " (%2.0f%%)", dets[i].prob[j] * 100);
+                        sprintf(buff, " (%2.0f%%)", newDetections[i].prob[j] * 100);
                         strcat(labelstr, buff);
-                        printf("%s: %.0f%% ", names[j], dets[i].prob[j] * 100);
+                        printf("%s: %.0f%% ", names[j], newDetections[i].prob[j] * 100);
                     }
                     else {
                         strcat(labelstr, ", ");
                         strcat(labelstr, names[j]);
-                        printf(", %s: %.0f%% ", names[j], dets[i].prob[j] * 100);
+                        printf(", %s: %.0f%% ", names[j], newDetections[i].prob[j] * 100);
                     }
                 }
             }
@@ -1015,7 +1014,7 @@ extern "C" void draw_detections_cv_v3(mat_cv* mat, detection *dets, int num, flo
                 rgb[0] = red;
                 rgb[1] = green;
                 rgb[2] = blue;
-                box b = dets[i].bbox;
+                box b = newDetections[i].bbox;
                 if (std::isnan(b.w) || std::isinf(b.w)) b.w = 0.5;
                 if (std::isnan(b.h) || std::isinf(b.h)) b.h = 0.5;
                 if (std::isnan(b.x) || std::isinf(b.x)) b.x = 0.5;
