@@ -889,7 +889,7 @@ extern "C" bool checkOverlap(box b1, box b2){
 
 //I appologize in advance that i'm useing arrays - i know it'll propably be inperformant as hell
 //but i hope it'll be enough
-smoothingDetection lastDets[1000];
+smoothingDetection *lastDets;
 int lastDetsIndex = 0;
 
 //how many frames a box stays at least on the screen
@@ -897,11 +897,11 @@ int smoothingFramesThreshold = 10;
 
 //Adds boxes which are not visible anymore on the display
 //returns the new length of the now doctored boxes array
-extern "C" detection *addSmoothingDets(detection *dets, int detsLength)
+extern "C" detection * addSmoothingDets(detection *dets, int detsLength, int *newDetsLength)
 {
-    smoothingDetection newLastDets[1000];
+    smoothingDetection newLastDets[100];
     int newLastDetsIndex = 0;
-
+    
     for(int j = 0; j < lastDetsIndex; j++){
         lastDets[j].framesSinceData++;
         lastDets[j].overlaped = false;
@@ -944,16 +944,39 @@ extern "C" detection *addSmoothingDets(detection *dets, int detsLength)
         }
     }
 
-    memcpy(lastDets, newLastDets, sizeof(newLastDets));
+    if(lastDetsIndex > 0){
+        free(lastDets);
+    }
+
+    if(newLastDetsIndex <= 0){
+        *newDetsLength = 0;
+        lastDetsIndex = 0;
+        return NULL;
+    }
+
+    lastDets = (smoothingDetection *) malloc (newLastDetsIndex * sizeof(smoothingDetection));
+    
+    for(int i = 0; i < newLastDetsIndex; i++){
+        lastDets[i] = newLastDets[i];
+    }
+
+
     lastDetsIndex = newLastDetsIndex;
 
-
+    detection *newDets;
     //now the visible dets are doctored
-    detection newDets[newLastDetsIndex];
+    newDets = (detection *) malloc(newLastDetsIndex * sizeof(detection));
+
+    if(!newDets){
+        return NULL;
+    }
+
     for(int i = 0; i < newLastDetsIndex; i++){
         newDets[i] = newLastDets[i].det;
     }
 
+
+    *newDetsLength = newLastDetsIndex;
     //memcpy(dets, newDets, sizeof(newDets));
     return newDets;
 }
@@ -962,14 +985,17 @@ extern "C" void draw_detections_cv_v3(mat_cv* mat, detection *dets, int num, flo
 {
     //See telegram memo for fix
     printf("Num before %d\n", num);
-    auto newDetections = addSmoothingDets(dets, num);
-    newDetSize = sizeof(newDetections)/sizeof(detection);
+    int newDetSize = 0;
+    detection *newDetections = addSmoothingDets(dets, num, &newDetSize);
     printf("Num after %d\n", newDetSize);
 
     try {
         cv::Mat *show_img = (cv::Mat*)mat;
         int i, j;
-        if (!show_img) return;
+        if (!show_img) {
+            free(newDetections);
+            return;
+        }
         static int frame_id = 0;
         frame_id++;
 
@@ -1098,6 +1124,9 @@ extern "C" void draw_detections_cv_v3(mat_cv* mat, detection *dets, int num, flo
     catch (...) {
         cerr << "OpenCV exception: draw_detections_cv_v3() \n";
     }
+
+    free(newDetections);
+
 }
 // ----------------------------------------
 
