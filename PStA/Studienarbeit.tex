@@ -187,7 +187,12 @@
 	\end{onehalfspace}
 	\chapter{Data Preprocessing}
 	\begin{onehalfspace}
-		Data Preprocessing
+		\section{Detection Smoothing}
+		Es is üblich, dass eine Erkennung einer Ampel über mehrere Frames hinweg nicht konstant ist. So kann es bei der Detektion zu flimmern der Bounding boxen (Bbox) der Ampeln kommen, was potentielles arbeiten mit diesen Datengrundlagen erschwert.\newline
+		Als mögliche Lösung wurde versucht eventuell auftretende "Datenlücken" mithilfe von vergangenen Detektionen zu füllen. Hierfür werden alle erkannten Ampel Bboxen zusammen mit einem "framesSinceLastUpdate" in einem objekt gespeichert. Bei jedem neuen Frame werden die neuen Bboxen gepuffert und es wird geprüft ob diese eine bereits zuvor gepufferte Bbox schneidet (vgl Code~\ref{lst:OverLapCode}). Bei überlappen wird die gepufferte Bbox entfernt. Boxen welche von keiner Neudetektion geschnitten werden, werden mit als Ergebnis ausgegeben und deren framesSinceLastUpdate wert wird erhöht. Sobald dieser Wert einen bestimmten einstellbaren Threshold überschreitet wird die Bbox auch ohne Überschneidung entfernt.
+		\lstinputlisting[language=C,firstline=869,lastline=888,basicstyle=\tiny,caption={Überlappungs detektion von zwei Bboxen},captionpos=b,label={lst:OverLapCode}]{imageOpencv.cpp}
+		\section{Probleme}
+		Der Algorithmus wurde zunächst Prototypisch in Python umgesetzt. Dieser Prototyp nutzt darknetpy und zeigt die Grundfunktionalität der Glättung, ist jedoch sehr unperformant (stark stotterndes Bild) und so auf einer mobilen Plattform wie z.B. dem NVIDIA Jetson nicht nutzbar. Daher wurde eine Portierung direkt in den Darknet Sourcecode in C/C++ versucht. Diese Portierung schlug nach diversen Komplikationen und fortschreitender Zeit fehl, da das Programm nicht ohne buffer overflow zum laufen gebracht werden konnte. Mehr Zeit und bessere C Kenntnisse haben hier gefehlt.
 	\end{onehalfspace}
 	\chapter{Image Processing und Analyse}
 	\begin{onehalfspace}
