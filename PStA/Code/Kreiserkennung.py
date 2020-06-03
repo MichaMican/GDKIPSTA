@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 
-image = cv2.imread('C:/Users/Philivanei/Downloads/planeten_01.jpg')
+image = cv2.imread('C:/Users/Philivanei/Downloads/ShouldBeRedAndYellow_100.jpg')
 height = image.shape[0]
 width = image.shape[1]
 
@@ -12,8 +12,8 @@ output = image.copy()
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 # search circles in image
-circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, 150,param1=20,param2=70,
-						minRadius=100,maxRadius=150)
+circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 2, round((1/5)*height),param1=15,param2=32,
+				minRadius=round((1/6)*width),maxRadius=round((1/4)*width))
 
 if circles is not None:
 	# convert the (x, y) coordinates and radius of the circles to integers

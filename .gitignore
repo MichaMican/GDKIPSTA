@@ -6,10 +6,12 @@ PStA/Studienarbeit.bbl
 PStA/Studienarbeit.bcf
 PStA/Studienarbeit.blg
 PStA/Studienarbeit.log
+PStA/input/titlepage.log
 PStA/Studienarbeit.out
 PStA/Studienarbeit.pdf
 PStA/Studienarbeit.run.xml
 PStA/Studienarbeit.synctex.gz
 PStA/Studienarbeit.toc
 **/*.jpg
+!PStA/Images/*.jpg
 **/*.txt

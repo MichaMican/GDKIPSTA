@@ -7,6 +7,27 @@
 \usepackage{graphicx}
 \usepackage{setspace}
 
+\graphicspath{ {./Images/} }
+\usepackage{listings}
+\lstset{
+	inputpath={./Code/},
+	language=Python,
+	basicstyle=\tiny,
+	numbers=left,
+	stepnumber=1,
+	showstringspaces=false,
+	tabsize=1,
+	breaklines=true,
+	breakatwhitespace=false,
+}
+
+
+\usepackage{gensymb}
+
+\usepackage{chngcntr}
+\counterwithout{footnote}{chapter}
+\counterwithout{figure}{chapter}
+\counterwithout{table}{chapter}
 
 %Adjust the page margins 
 \usepackage[left=3cm, right=3cm, top=2cm, bottom=2cm, a4paper, portrait]{geometry}
@@ -84,17 +105,132 @@
 	\cleardoublepage
 	
 	
-	\chapter*{Einleitung}
+	\chapter{Einleitung}
 	%Link zu den Kapiteln inkl. Inhaltsverzeichnis
-	\addcontentsline{toc}{chapter}{Einleitung}
 	\begin{onehalfspace}
 		Im Straßenverkehr finden sich viele Herausforderungen. Es müssen viele Situationen vorausgesehen werden, um eine sichere Fahrt zu gewährleisten. Bei immer höher werdenden Verkehrsaufkommen werden es die Fahrer auch in Zukunft nicht einfach haben. Damit die Verkehrssituation sicherer gestaltet werden kann, werden Unmengen an verschiedenen Fahrassistenzsystemen entwickelt. Diese Studienarbeit behandelt ein Assistenzsystem zur leichteren Ampelphasenwahrnehmung. Eine rote Ampel wird schnell übersehen, daher muss auch in dieser Thematik unterstützte Wahrnehmung begünstigt werden. Es soll ein neuronales Netz trainiert werden, das Ampeln und deren unterschiedlichen Schaltphasen (rot, rot-gelb, gelb und grün) erkennen kann. Ziel dieser künstlichen Intelligenz soll sein, dass Sie den Fahrer durch Statusmeldungen in beispielsweise dem Bordmonitor mit der aktuellen Ampelphase informiert. Falls die Sicht des Mobilisten eingeschränkt ist und dieser die Phasen der Ampel nur schwer bis gar nicht erkennen kann soll er sich auf die Anzeige der Ampelerkennung im Bordmonitor verlassen können. Diese Arbeit wird Aufschluss geben, wie die künstliche Intelligenz aufgebaut und trainiert wurde. Außerdem werden unterschiedliche Verfahren im Bereich Image processing beschrieben, um eventuell performantere Ergebnisse zu erzielen. Im ersten Kapitel wird dargelegt, auf welchem neuronalen Netz aufgebaut wurde und wie dieses angelegt wurde.
 	\end{onehalfspace}
 
-	\chapter*{YOLO}
-	\addcontentsline{toc}{chapter}{YOLO}
+	\chapter{Netzwerk}
 	\begin{onehalfspace}
-		test
+		Wie bereits erwähnt soll die Erkennung der Ampel bzw. weiterführend die Phase dieser durch ein neuronales Netz realisiert werden.\\
+		Mittlerweile gibt es viele verschiedene Neuronale Netze zur Erkennung von Objekten in Bildern und/oder Videos (Object Recognition). Als Basis dient hier meist ein sog. Convolutional Neural Network (CNN) welches aus mehreren namensgebenden Convolutional Layern, Pooling Layern, einem Fully Connected Layer und einer Softmax Funktion besteht.
+		Dieses Konzept wird dann um verschiedene Operatoren, Funktionen oder Ähnliches erweitert.\\
+		Im Nachfolgenden wird das, von uns genutzte, Netzwerk YoloV3-tiny genauer erklärt bzw. allgemein auf das Konzept von YOLO eingegangen.
+		\section{YOLO}
+		\subsection{Yolo allgemein}
+		YOLO ist laut offizieller Aussage ein "`Echtzeit Objekterkennungs System"'
+		\footnote{"https://pjreddie.com/darknet/yolo/", besucht am 30.05.2020 (eigene Übersetzung)},
+		welches vorallem auf Geschwindigkeit bei trotzdem gut bleibender Genauigkeit setzt.\\
+		YOLO nutzt im Gegensatz zu vielen herkömmlichen Objekterkennungsnetzen (wie z.B. Faster-RCNN oder Mask-RCNN) nicht mehrerer Netze hintereinander, bei dem z.B. das erste durch ein sog. Region Proposal Network dargestellt wird (welches interessante Regionen herausfiltert), sondern geht "`einen völlig anderen Weg und schaut nur ein einziges Mal auf das Bild"
+		\footnote{"https://www.sigs-datacom.de/trendletter/2018-10/4-wie-man-in-echtzeit-mehrere-objekte-mit-deep-learning-und-yolo-erkennen-und-klassifizieren-kann.html", besucht am 30.05.2020}
+		und "`erkennt gleichzeitig alle interessanten Bereiche und klassifiziert diese mit eine[m] Score"
+		\footnote{"https://www.sigs-datacom.de/trendletter/2018-10/4-wie-man-in-echtzeit-mehrere-objekte-mit-deep-learning-und-yolo-erkennen-und-klassifizieren-kann.html", besucht am 30.05.2020}\\
+		Diese Technik ermöglicht es dem Netzwerk eine deutlich schneller Klassifizierung vorzunehmen. \clearpage
+		Jedoch bringt diese Geschwindigkeit bzw. diese Technik auch einen Nachteil mit sich. Für ein solches Model ist es schwieriger ein sehr kleines Objekt zu erkennen, da das Grid welches auf das Bild gelegt wird sehr "grob"\space im Vergleich zu anderen Netzen ist. \\
+		Deshalb ist ein Model wie z.B. Retinanet mit einem Backbone wie einem FPN deutlich besser in der Erkennung von kleinen Objekten bzw. auch in der Genauigkeit der Vorhersagen generell, auch wenn dies natürlich Performance kostet. (vgl. Abbildung~\ref{fig:comparison}
+		\footnote{"https://syncedreview.com/2018/03/27/the-yolov3-object-detection-network-is-fast/", besucht am 30.05.2020})\\
+		\begin{figure}[h!]
+			\includegraphics[width=\linewidth]{Comparison.png}
+			\caption{Yolov3 Comparison}
+			\label{fig:comparison}
+		\end{figure}
+		\subsection{YoloV3-tiny}
+		Für unseren Einsatzfall lohnt es sich, wie oben beschrieben, einen Blick auf Tiny Yolo zu werfen. \\
+		Ein "`ganzes"\space YOLO Netzwerk wie z.B. das neue YoloV4 oder das gängige YoloV3 Model bieten gute Ergebnisse, jedoch ist die Performance dieser auf einem Nvidia Jetson Nano Gerät leider zu schlecht, um diese dem Nutzer direkt "`live"\space weitergeben zu können.
+		Daher wird eine "`kleine"\space Version von Yolo (genannt Tiny-Yolo) für diesen Anwendungsfall genutzt. Tiny-Yolo (V3) kann Bilder auf einem Nvidia Jetson Nano mit ca. 25 Bildern pro Sekunde klassifzieren und bietet somit eine, für diese Platform, sehr gute Performance.\clearpage
+		Aufgrund dieser deutlich höheren Performance (ca. 6,2x die Geschwindigkeit von YoloV3-416) verschlechtert sich die Genauigkeit jedoch auch um ca. 40\% (vgl. Abbildung~\ref{fig:yolov3-tiny})\\
+		\begin{figure}[h!]
+			\includegraphics[scale=0.7]{YoloV3-tiny.png}
+			\caption{Yolov3(-tiny) Comparison}
+			\label{fig:yolov3-tiny}
+		\end{figure}
+	\end{onehalfspace}
+	\chapter{Realisierung}
+	\begin{onehalfspace}
+		Wie schon in der vorherigen Sektion erwähnt, soll das Projekt auf einem Nvidia Jetson Nano realisiert werden. Dieser bietet für seinen vergleichsweise niedrigen Preis (ca. 99\$
+		\footnote{"https://nvidianews.nvidia.com/news/nvidia-announces-jetson-nano-99-tiny-yet-mighty-nvidia-cuda-x-ai-computer-that-runs-all-ai-models", besucht am 31.05.2020})
+		im Hinblick auf Inferenz eine sehr gute Performance für die Kosten.
+		\section{Hardware}
+		Der Nvidia Jetson Nano berechnet mit seiner 128 Kern Nvidia Maxwell Grafikeinheit und seinem Quad-Core ARM Cortex -A57 laut Nvidia 472 GFLOPs.
+		\footnote{"https://developer.nvidia.com/embedded/develop/hardware", besucht am 31.0.5.2020}
+		Das Gerät wird für unseren Anwendungsfall zusätzlich mit einer Raspberry Pi Camera v2.1 ausgestattet, welche den Videostream liefert. Das Nvidia System ermöglicht eine Video Dekodierung von bis zu vier gleichzeitigen Full-HD Streams bei 30 Bildern pro Sekunde bzw. analog von acht bei 30 Bildern pro Sekunde.
+		\footnote{"https://developer.nvidia.com/embedded/develop/hardware", besucht am 31.0.5.2020}
+		\section{Software}
+		Nvidia schafft es bei der Jetson Platform die Geräte sehr gut zu optimieren bzw. die Hardware optimal zu nutzen. Dies ermöglichen Frameworks wie z.B. Deepstream und/oder TensorRT
+		\subsection{Deepstream}
+		Deepstream ist ein Software Development Kit, das "`ein beschleunigtes AI Framework darstellt, welches zur Erstellung von Intelligenten Video Analyse Pipelines genutzt wird."
+		\footnote{"https://docs.nvidia.com/metropolis/deepstream/dev-guide/", besucht am 31.05.2020 (eigene Übersetzung)}
+		Deepstream fungiert als "`Schnittstelle" zwischen Python, C, C++ Applikationen und der Platform selbst (z.B. einem Nvidia Jetson Nano / TX2).
+		Weiterführend basiert es auf CUDA (einer GPU basierten parallelen Programmiersprache welche oft bei neuronalen Netzen zum Einsatz kommt) welches TensorRT nutzt.
+		\subsection{TensorRT}
+		TensorRT ist, analog zu Deepstream, auch ein Software Development Kit, welches für "high-performance deep learning inference"
+		\footnote{"https://developer.nvidia.com/tensorrt", besucht am 31.05.2020} genutzt werden kann.
+		Applikationen die auf TensorRT basieren können bis zu 40 mal schneller sein als vergleichbare Applikation, welche auf einem CPU berechnet werden.
+		\footnote{"https://developer.nvidia.com/tensorrt", besucht am 31.05.2020}
+		Dieses SDK konvertiert ein trainiertes Neuronales Netzwerk mithilfe eines TensorRT Optimizers in eine TensorRT Runtime Engine. Dies geschieht durch die Kombinierung von Layern und optimierung der Kernel Auswahl.
+		\footnote{"https://docs.nvidia.com/deeplearning/tensorrt/developer-guide/index.html"}
+		Durch diese Umwandlung bzw. Optimierung des Netzwerkes kann ein enormer Geschwindigkeitsgewinn , wie oben beschrieben, erzielt werden.
+	\end{onehalfspace}
+	\chapter{Labeling}
+	\begin{onehalfspace}
+		In diesem Kapitel wird beschrieben, wie beim Labeln der einzelnen Bilder vorgegangen wurde. Labeln ist der Vorgang, bei dem in unterschiedlichen Bildern Objekte markiert werden, die die künstliche Intelligenz später als definierte Klasse identifizieren soll.
+		\section{Datenbeschaffung / Open Image Dataset (OID)}
+		Anfangs wurden durch das OIDv4\_ToolKit\footnote{"https://github.com/TheAiGuysCode/OIDv4\_toolkit", besucht am 01.06.2020} Bilder aus dem OID von Google heruntergeladen. Die Bilder waren bereits nach Thematik Ampel beziehungsweise Straßenschilder gelabelt. Leider konnte der Datensatz so nicht direkt verwendet werden, da unsere künstliche Intelligenz auch die Ampelphasen erkennen soll. Ergo wurden alle Bilder mithilfe von Yolo\_Label\footnote{"https://github.com/developer0hye/Yolo\_Label", besucht am 01.06.2020} neu klassifiziert. Was außerdem erwähnt werden muss, ist die Unterstützung familiärer Seite, welche bei der Beschaffung von Bildern der Ampelphasen und Straßenschildern nachgeholfen haben, indem Bilder selbst aufgenommen wurden. Das half vor allem der Erkennung von rot-gelb und gelb Phasen bei Ampeln, da wenige Aufnahmen dieser Phasen im OID vorhanden waren.
+		\section{Yolo\_Label}
+		Yolo\_Label ist ein Tool, mit dem Objekte in einem Bild durch einen rechteckigen Rahmen, beispielsweise zum Trainieren einer künstliche Intelligenz, gekennzeichnet werden können. Dazu wird ein Datensatz mit einer Menge an Bildern für die entsprechende Thematik benötigt. Weiterhin muss eine Textdatei erstellt werden, in der die gewünschten Klassen, wie zum Beispiel "`rote Ampel"' bestimmt werden. Wenn beides vorhanden ist, können die gewünschten Objekte in den Bildern nach ausgewählter Klasse gelabelt werden.
+		\section{Probleme}
+			\subsection{Bildkonvertierung}
+				Das Yolo Label Tool (YLT) akzeptiert nur jpg und png Dateien. Bei der Generierung von Trainingsdaten wurden Photos mit verschiedenen Smartphones gemacht. Android Geräte speichern Bilder bereits im jpg Format, wohingegen Apple Geräte und einige Spiegelreflex Kameras im jpeg Format speichern. Zunächst wurde eine Konvertierung durch umbenennen der Dateiendungen von "`.jpeg"' zu "`.jpg"' versucht. Die so konvertierten Bilder können nun zwar von YLT gelesen werden, jedoch sind Bilder, welche im sogenannten Portrait-Modus, also "`Hochkannt"', aufgenommen wurden, falsch rotiert. Dies liegt daran, dass jpeg die Bilder in der ursprünglichen Kamerasensor Orientierung speichert und dann in den Exif Daten des Bildes eine Flag setzt, welche dem Anzeige Programm mitteilt wie das Bild rotiert werden muss um richtig angezeigt zu werden. Diese Flag geht bei der Konvertierung verloren. Daher müssen sowohl das Bild als auch die Exif daten mit der Python Imaging Library eingelesen werden. Abhängig vom Inhalt der "`Orientierung Flag"' (Flag nr. 274) wird das Bild um 90\degree, -90\degree oder 180\degree rotiert (vgl Code~\ref{lst:jpeg2jpgCode}). Das fertige Bild wird dann als jpg in einem eigenen Ordner gespeichert und kann nun für den Labeling prozess verwendet werden.
+				\lstinputlisting[language=Python, firstline=27,lastline=36,basicstyle=\tiny,caption={Auszug aus jpeg zu jpg Konvertierungs-Code},captionpos=b,label={lst:jpeg2jpgCode}]{JPEGTOJPG.py}
+			
+	\end{onehalfspace}
+	\chapter{Data Preprocessing}
+	\begin{onehalfspace}
+		Data Preprocessing
+	\end{onehalfspace}
+	\chapter{Image Processing und Analyse}
+	\begin{onehalfspace}
+		Das Image Processing beschreibt den Vorgang der Aufbereitung des Bildes mithilfe der Daten der KI. Die ursprüngliche Idee war durch diesen Verarbeitungsschritt die Phase der erkannten Ampel zu identifizieren. \newline 
+		\section{Analyse}
+		Beim ersten Versuch wurden die detektierten Bounding boxen (Bbox) aus dem Bild herausgeschnitten um so nur noch ein Bild der Ampel zu haben. Der Bildausschnitt wird dann entsättigt und so zu einem Schwarz-Weiß Bild konvertiert (vgl. Abbildung~\ref{fig:TLCrop}). Der Ausschnitt wird dann gleichmäßig in drei Sektoren unterteilt, welche jeweils ein drittel des Bildes abdecken. Es wird nun der Durchschnitts "weiß-" Wert jedes Sektors berechnet und Validiert. Bei diesem Verarbeitungsschritt wird überprüft ob die Analyse ein plausibles Ergebnis geliefert hat. Wenn diese Überprüfung des Datensatzes negativ ausfällt werden die ursprünglichen Farbkanäle (von vor der Entsättigung) benutzt. Dabei werden im ersten drittel nur die Rot Werte, im zweiten die Rot und Grün Werte im selben Verhältnis und im dritten Sektor nur die Grün Werte betrachtet. Diese werden dann auf den selben Wertebereich normalisiert und dann analog zur entsättigten Variante analysiert und validiert. Das Ergebniss der Analyse setzt sich dann aus den eindeutigsten werten beider Untersuchungsarten zusammen. \newline
+		Diese Ergebnisse erreichten eine Erkennungsquote von etwa 40\%.
+		\section{Image cropping}
+		Die meisten Fehler können dadurch begründet werden, dass die Bboxen nicht genau deckend die Grenzen der Ampel kennzeichnen und somit die Hintergrundlandschaft hinter der Ampel auf die Analyse Einfluss nimmt. Um dem Entgegenzuwirken wird nur ein 10 Pixel breites Band in der Mitte des Bildes betrachtet. Somit werden die Ränder aus der Detektion entfernt. (vgl. Abbildung~\ref{fig:TLCrop}) \newline
+		Dies verbessert die Erkennungsquote auf etwa 60\%.\newline
+		Die Zuschneidung in Y-Richtung gestaltet sich komplizierter. Hierfür wird eine Pixel Spalte im oberen viertel des Bildes in der Mitte betrachtet. Das dunkelste Pixel markiert dann den obersten beziehungsweise untersten Punkt. Um keine dunklen Pixel "`ausreißer"' im Hintergrund der Ampel als Grenze zu erkennen, werden bei Detektion die folgenden 10 Pixel mit überprüft. Diese müssen etwa gleich dunkel sein, damit es sich um eine valide Grenze handelt. Es is möglich, dass der dunkelste Bereich im Bild nicht das Ende der Ampel markiert. Um dem Entgegen zu wirken wird der Median aus allen dunklen Pixeln berechnet und dieser als Threshold für die Erkennung der Grenze verwendet. (vgl. Abbildung~\ref{fig:TLCrop}) Damit konnte die Erkennungsquote weiter verbessert werden.\newline
+		\begin{figure}[h!]
+			\includegraphics[width=\linewidth]{TLCropping.jpg}
+			\caption{Analyse schritte}
+			\label{fig:TLCrop}
+		\end{figure}
+		\section{Kreiserkennung}
+		Im nächsten Ansatz sollten die einzelnen Rundungen der Ampel durch Kantenerkennung erfasst werden. Ziel dieses Verfahrens ist es, die einzelnen Ampellichter herauszufiltern, um danach herausfinden zu können welche der Leuchten eingeschaltet ist. Dafür wurde OpenCV als mögliche Lösung gewählt, da diese Bibliothek bereits eine Funktion beinhaltet, die in der Lage ist, Kreise zu detektieren und zu zeichnen. In den folgenden Code Zeilen (Kreiserkennung Code~\ref{lst:KreisCode}) wird versucht, die Kreise in einem vorgegebenen Bild zu erkennen.
+		\lstinputlisting[language=Python, firstline=14,lastline=17,basicstyle=\tiny,caption={Kreiserkennung Code},captionpos=b,label={lst:KreisCode}]{Kreiserkennung.py}
+		Dabei legt param1 den Threshold der Kantenerkennung und param2 den Akkumulator Threshold des Kreiszentrums fest. Hier geeignete Werte universell für jedes Bild herauszufinden ist eine große Herausforderung und nahezu nicht möglich. Es gibt Bilder, in welchen diese Erkennung erstaunlich gut funktioniert, allerdings ist dieses Verfahren insgesamt zu ungenau. Auch bei Bildern mit klar erkennbaren Kreiskanten sind die gezeichneten Kreise nicht genau genug positioniert.
+		\begin{figure}[h!]
+			\includegraphics[width=\linewidth]{circles_detected.jpg}
+			\caption{Beispielbild erkannte Kreise}
+			\label{fig:CirclesDetected}
+		\end{figure}
+		\newline
+		Folglich wurde sich gegen die OpenCV Kreiserkennung entschieden, da die Wahrscheinlichkeit zu gering ist, um die einzelnen Ampelrundungen zu erkennen.
+		\section{Umsetzung}
+		Für das Image Processing und die Image Analyse wurde die Scriptsprache Python verwendet um ein einfaches prototypisches implementieren der Algorithmen zu ermöglichen. Bei erfolgreichen Prototyp wäre das Programm in C portiert worden um die Berechnungszeit zu verringern. Es wurden zunächst Testbilder verwendet, welche mit der Python Bibliothek openCV eingelesen und zugeschnitten wurden. Außerdem wurde numpy verwendet um den Umgang mit den Bildarrays zu erleichtern (vgl. Code~\ref{lst:ImgCropCode} und Code~\ref{lst:ImgAnalyCode}). Um die Bilder von darknet in Python zu nutzen wird der Wrapper darknetpy\footnote{https://github.com/danielgatis/darknetpy, besucht am 31.05.2020} verwendet.
+		\lstinputlisting[language=Python, firstline=8,lastline=61,basicstyle=\tiny,caption={Auszug aus dem Image cropping Code},captionpos=b,label={lst:ImgCropCode}]{ImageProcessingPrototype.py}
+		\lstinputlisting[language=Python, firstline=77,lastline=118,basicstyle=\tiny,caption={Auszug aus dem Image Analyse (greyscale) Code},captionpos=b,label={lst:ImgAnalyCode}]{ImageProcessingPrototype.py}
+		\section{Probleme dieses Ansatzes}
+		Insgesamt bringt dieser Ansatz mangelhafte Ergebnisse. Viele Detektionen sind Falsch oder knapp richtig (Unterschiede in den Sektoren sind gering). Das Zuschneiden in x-Richtung muss sich auf eine möglichst richtige Bbox verlassen, da sich die Ampel ansonsten nicht mittig des Ausschnitts befindet. Die Genauigkeit des Zuschneiden in y-Richtung ist stark abhängig von den Licht und Umgebungsverhältnissen und somit nicht verlässlich einsetzbar. Weitere Probleme bei der Detektion der Grenzen entstehen, wenn die Ampel nicht Schwarz ist, was in einigen Ländern, wie zum Beispiel dem Vereinigten Königreiches, häufig vorkommen kann. Hinzu kommt, dass dieses System nur funktional ist, wenn die Ampel aufrecht hängt. Da nur eines dieser Probleme auftreten muss um das Ergebnis zu verfälschen wurde der Versuch die Ampelphasen durch Image Processing zu erkennen im finalen Ergebnis nicht eingesetzt und es wurde eine Lösung mit einem neuronalen Netz realisiert.
+		
+		
+	\end{onehalfspace}
+	\chapter{Data augmentation}
+	\begin{onehalfspace}
+		Data Augmentation (zu deutsch Daten Augmentierung) ist ein Verfahren, das gerne im Bereich der neuronalen Netzwerke zum Training angewandt wird. Dabei werden vorhandene Bilder eines Datensatzes nach verschiedenen Methoden abgeändert, um den vorhandenen Datensatz zu erweitern, ohne einen anderen Datensatz suchen zu müssen. In diesem Projekt wurden die Bereits gelabelten Bereiche ausgeschnitten und als einzelne Bilddateien gespeichert. Diese wurden dann minimal geändert, durch Einfügen eines Rauschen oder ähnlichem und dann in andere Bilder eingefügt. Manche Bilder werden gar nicht verändert, aber trotzdem in andere Bildumgebungen eingebaut. Da der "`Einfügeort"' auf dem neuen Bild bekannt ist, kann auch das neue Label automatisch hinzugefügt werden. Dadurch müssen die neuen augmentierten Bilder nicht erneut gelabelt werden. In dieser Projektarbeit wurde extra für diese Aufgabe ein passendes Python Skript geschrieben, das sich ausschließlich um die Augmentation des Datensatzes kümmert.
+	\end{onehalfspace}
+	\chapter{Schlusswort}
+	\begin{onehalfspace}
+		Als Ergebnis präsentiert die Studienarbeit eine funktionstüchtige künstliche Intelligenz, die in der Lage ist Ampelphasen und Straßenschilder zu erkennen. Straßenschilder werden nur erkannt, damit der Algorithmus nicht fälschlicherweise ein Schild als Ampel erkennen kann, da dies speziell bei Parkverbotsschilder ein großes Problem war. In seltenen Fällen kann dies jedoch dennoch eintreten.
 	\end{onehalfspace}
 	
 \end{document}
