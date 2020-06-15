@@ -235,7 +235,13 @@
 	\end{onehalfspace}
 	\chapter{Schlusswort}
 	\begin{onehalfspace}
-		Als Ergebnis präsentiert die Studienarbeit eine funktionstüchtige Tiny-YOLO künstliche Intelligenz, die in der Lage ist, Ampelphasen und Straßenschilder zu erkennen. Dabei werden die Straßenschilder nur erkannt, damit der Algorithmus nicht fälschlicherweise ein Schild als Ampel erkennen kann, da dies speziell bei Parkverbotsschilder ein großes Problem war. In seltenen Fällen kann dies jedoch dennoch eintreten. Insgesamt läuft das System aktuell mit Tiny-YOLO sehr gut und performant auf dem Desktop PC. In Zukunft kann dieses Projekt auf den NVIDIA Jetson ausgeweitet werden, damit eine "`mobile"' Version der Detektion entstehen kann. Da die Technische Hochschule Deggendorf zu Corona-Zeiten keinen Jetson mehr für diese Studienarbeit zur Verfügung stellen konnte, konnte das Projekt nur auf einem Desktop PC getestet werden. Um die weitere Bilderkennung präziser zu gestalten, sollten schnelle geeignete "`Image Processing"'-Verfahren genutzt werden. Diese wurden jedoch nicht angewandt, da sie zu ungenau beziehungsweise zu laufzeitaufwendig waren.
+		Als Ergebnis präsentiert die Studienarbeit eine funktionstüchtige Tiny-YOLO künstliche Intelligenz, die in der Lage ist, Ampelphasen und Straßenschilder zu erkennen. Dabei werden die Straßenschilder nur erkannt, damit der Algorithmus nicht fälschlicherweise ein Schild als Ampel erkennen kann, da dies speziell bei Parkverbotsschilder ein großes Problem war. In seltenen Fällen kann dieses dennoch eintreten. Insgesamt läuft das System mit Tiny-YOLO sehr gut und performant auf dem Desktop PC. In Zukunft kann dieses Projekt auf den NVIDIA Jetson ausgeweitet werden, damit eine "`mobile"' Version der Detektion entstehen kann. Da die Technische Hochschule Deggendorf zu Corona-Zeiten keinen Jetson mehr für diese Studienarbeit zur Verfügung stellen konnte, konnte das Projekt nur auf einem Desktop PC bearbeitet werden. Es stand kurzzeitig ein privater NVIDIA Jetson zur Verfügung, um die Performanz der künstlichen Intelligenz unter Probe zu stellen. Dabei war es möglich mit dem Jetson eine Bilderkennung von bis zu 21 Bildern pro Sekunde zu erreichen (siehe Abbildung~\ref{fig:Jetson}).
+		\begin{figure}[h!]
+			\includegraphics[width=\linewidth]{Jetson.png}
+			\caption{Jetson Momentaufnahme}
+			\label{fig:Jetson}
+		\end{figure}
+		Da der Jetson nach einem Tag wieder zurückgegeben werden musste, konnten keine weiteren Tests und Optimierungen auf dieser Platform ausgeführt werden. Die Werte sind in jedem Fall gut genug, dass eine mobile Variante mit diesem umsetzbar wäre. Damit die weitere Bilderkennung präziser gestaltet werden kann, sollten schnelle geeignete "`Image Processing"'-Verfahren genutzt werden. Diese wurden jedoch nicht angewandt, da sie zu ungenau beziehungsweise zu laufzeitaufwendig waren.
 	\end{onehalfspace}
 	
 \end{document}
