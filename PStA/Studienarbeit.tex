@@ -105,20 +105,20 @@
 	\cleardoublepage
 	
 	
-	\chapter{Einleitung}
+	\chapter{Einleitung (PM)}
 	%Link zu den Kapiteln inkl. Inhaltsverzeichnis
 	\begin{onehalfspace}
 		Im Straßenverkehr finden sich viele Herausforderungen. Es müssen viele Situationen vorausgesehen werden, um eine sichere Fahrt zu gewährleisten. Bei immer höher werdenden Verkehrsaufkommen werden es die Fahrer auch in Zukunft nicht einfach haben. Damit die Verkehrssituation sicherer gestaltet werden kann, werden Unmengen an verschiedenen Fahrassistenzsystemen entwickelt. Diese Studienarbeit behandelt ein Assistenzsystem zur leichteren Ampelphasenwahrnehmung. Eine rote Ampel wird schnell übersehen, daher muss auch in dieser Thematik unterstützte Wahrnehmung begünstigt werden. Es soll ein neuronales Netz trainiert werden, das Ampeln und deren unterschiedlichen Schaltphasen (rot, rot-gelb, gelb und grün) erkennen kann. Ziel dieser künstlichen Intelligenz soll sein, dass sie den Fahrer durch Statusmeldungen in beispielsweise dem Bordmonitor mit der aktuellen Ampelphase informiert. Falls die Sicht des Mobilisten eingeschränkt ist und dieser die Phasen der Ampel nur schwer bis gar nicht erkennen kann, soll er sich auf die Anzeige der Ampelerkennung im Bordmonitor verlassen können. Diese Arbeit wird Aufschluss geben, wie die künstliche Intelligenz aufgebaut und trainiert wurde. Außerdem werden unterschiedliche Verfahren im Bereich Image processing beschrieben, um eventuell performantere Ergebnisse zu erzielen. Im ersten Kapitel wird dargelegt, auf welchem neuronalen Netz aufgebaut wurde und wie dieses angelegt wurde.
 	\end{onehalfspace}
 
-	\chapter{Netzwerk}
+	\chapter{Netzwerk (MA)}
 	\begin{onehalfspace}
 		Wie bereits erwähnt soll die Erkennung der Ampel beziehungsweise weiterführend die Phase dieser durch ein neuronales Netz realisiert werden.\\
 		Mittlerweile gibt es viele verschiedene Neuronale Netze zur Erkennung von Objekten in Bildern und/oder Videos (Object Recognition). Als Basis dient hier meist ein sogenanntes Convolutional Neural Network (CNN), welches aus mehreren namensgebenden Convolutional Layern, Pooling Layern, einem Fully Connected Layer sowie einer Softmax Funktion besteht.
 		Dieses Konzept wird dann um verschiedene Operatoren, Funktionen oder Ähnliches erweitert.\\
 		Im Nachfolgenden wird das, von uns genutzte, Netzwerk YoloV3-tiny genauer erklärt beziehungsweise allgemein auf das Konzept von YOLO eingegangen.
-		\section{YOLO}
-		\subsection{Yolo allgemein}
+		\section{YOLO (MA)}
+		\subsection{Yolo allgemein (MA)}
 		YOLO ist laut offizieller Aussage ein "`Echtzeit Objekterkennungs System"'
 		\footnote{"https://pjreddie.com/darknet/yolo/", besucht am 30.05.2020 (eigene Übersetzung)},
 		welches vorallem auf Geschwindigkeit bei gut bleibender Genauigkeit setzt.\\
@@ -128,18 +128,18 @@
 		\footnote{"https://www.sigs-datacom.de/trendletter/2018-10/4-wie-man-in-echtzeit-mehrere-objekte-mit-deep-learning-und-yolo-erkennen-und-klassifizieren-kann.html", besucht am 30.05.2020}\\
 		Diese Technik ermöglicht es, dem Netzwerk eine deutlich schnellere Klassifizierung vorzunehmen. 
 		Jedoch bringt diese Geschwindigkeit, beziehungsweise diese Technik auch einen Nachteil mit sich. Für ein solches Modell ist es schwieriger ein sehr kleines Objekt zu erkennen, da das Grid, welches auf das Bild gelegt wird sehr "grob"\space im Vergleich zu anderen Netzen ist. \\
-		Deshalb ist ein Modell, wie zum Beispiel Retinanet mit einem Backbone wie einem FPN (Feature Pyramid Network) deutlich besser in der Erkennung von kleinen Objekten bzw. auch in der Genauigkeit der Vorhersagen generell, auch wenn dies natürlich Performance kostet. (vgl. Abbildung~\ref{fig:comparison}
+		Deshalb ist ein Modell, wie zum Beispiel Retinanet mit einem Backbone wie einem FPN (Feature Pyramid Network) deutlich besser in der Erkennung von kleinen Objekten beziehungsweise auch in der Genauigkeit der Vorhersagen generell, auch wenn dies natürlich Performance kostet. (vgl. Abbildung~\ref{fig:comparison}
 		\footnote{"https://syncedreview.com/2018/03/27/the-yolov3-object-detection-network-is-fast/", besucht am 30.05.2020})\\
 		\begin{figure}[h!]
 			\includegraphics[width=\linewidth]{Comparison.png}
 			\caption{Yolov3 Comparison}
 			\label{fig:comparison}
 		\end{figure}
-		\subsection{YoloV3-tiny}
+		\subsection{YoloV3-tiny (MA)}
 		Für unseren Einsatzfall lohnt es sich, wie oben beschrieben, einen Blick auf Tiny Yolo zu werfen. \\
-		Ein "`ganzes"\space YOLO Netzwerk, wie zum Beispiel das neue YoloV4 oder das gängige YoloV3 Modell, bieten gute Ergebnisse, jedoch ist die Performance dieser auf einem Nvidia Jetson Nano Gerät leider zu schlecht, um diese dem Nutzer direkt "`live"\space weitergeben zu können.
-		Daher wird eine "`kleine"\space Version von Yolo (genannt Tiny-Yolo) für diesen Anwendungsfall genutzt. Tiny-Yolo (V3) kann Bilder auf einem Nvidia Jetson Nano mit ca. 25 Bildern pro Sekunde klassifzieren und bietet somit eine, für diese Platform, sehr gute Performance.\clearpage
-		Aufgrund dieser deutlich höheren Performance (ca. 6,2x die Geschwindigkeit von YoloV3-416) verschlechtert sich die Genauigkeit jedoch auch um ca. 40\% (vgl. Abbildung~\ref{fig:yolov3-tiny}) \\
+		Ein "`ganzes"'\space YOLO Netzwerk, wie zum Beispiel das neue YoloV4 oder das gängige YoloV3 Modell, bieten gute Ergebnisse, jedoch ist die Performance dieser auf einem Nvidia Jetson Nano Gerät leider zu schlecht, um diese dem Nutzer direkt "`live"'\space weitergeben zu können.
+		Daher wird eine "`kleine"'\space Version von Yolo (genannt Tiny-Yolo) für diesen Anwendungsfall genutzt. Tiny-Yolo (V3) kann Bilder auf einem Nvidia Jetson Nano mit ca. 25 Bildern pro Sekunde klassifzieren und bietet somit eine, für diese Platform, sehr gute Performance.\clearpage
+		Aufgrund dieser deutlich höheren Performance (ca. 6,2x die Geschwindigkeit von YoloV3-416) verschlechtert sich die Genauigkeit jedoch auch um ca. 40\% (vgl. Abbildung~\ref{fig:yolov3-tiny}). \\
 		Im Hinblick auf die begrenzte Rechenleistung von Mikrocontrollern wird unser Modell mit Tiny-Yolo realisiert, um das Netzwerk auf einem solchen Gerät lauffähig zu machen.
 		\begin{figure}[h!]
 			\includegraphics[scale=0.7]{YoloV3-tiny.png}
@@ -147,25 +147,25 @@
 			\label{fig:yolov3-tiny}
 		\end{figure}
 	\end{onehalfspace}
-	\chapter{Realisierung}
+	\chapter{Realisierung (MA)}
 	\begin{onehalfspace}
 		Wie schon in der vorherigen Sektion erwähnt, soll das Projekt auf einem Nvidia Jetson Nano realisiert werden. Dieser bietet für seinen vergleichsweise niedrigen Preis (ca. 99\$
 		\footnote{"https://nvidianews.nvidia.com/news/nvidia-announces-jetson-nano-99-tiny-yet-mighty-nvidia-cuda-x-ai-computer-that-runs-all-ai-models", besucht am 31.05.2020})
 		im Hinblick auf Inferenz eine sehr gute Performance für die Kosten.
-		\section{Hardware}
+		\section{Hardware (MA)}
 		Der Nvidia Jetson Nano berechnet mit seiner 128 Kern Nvidia Maxwell Grafikeinheit und seinem Quad-Core ARM Cortex -A57 laut Nvidia 472 GFLOPs.
 		\footnote{"https://developer.nvidia.com/embedded/develop/hardware", besucht am 31.0.5.2020}
-		Das Gerät wird für unseren Anwendungsfall zusätzlich mit einer Raspberry Pi Camera v2.1 ausgestattet, welche den Videostream liefert. Das Nvidia System ermöglicht eine Video Dekodierung von bis zu vier gleichzeitigen Full-HD Streams bei 30 Bildern pro Sekunde bzw. analog von acht bei 30 Bildern pro Sekunde.
+		Das Gerät wird für unseren Anwendungsfall zusätzlich mit einer Raspberry Pi Camera v2.1 ausgestattet, welche den Videostream liefert. Das Nvidia System ermöglicht eine Video-Dekodierung von bis zu vier gleichzeitigen Full-HD Streams bei 30 Bildern pro Sekunde beziehungsweise analog von acht bei 30 Bildern pro Sekunde.
 		\footnote{"https://developer.nvidia.com/embedded/develop/hardware", besucht am 31.0.5.2020}
-		\section{Software}
+		\section{Software (MA)}
 		Nvidia schafft es, bei der Jetson Platform die Geräte sehr gut zu optimieren beziehungsweise die Hardware optimal zu nutzen. Dies ermöglichen Frameworks, wie beispielsweise Deepstream und/oder TensorRT
-		\subsection{Deepstream}
-		Deepstream ist ein Software Development Kit, das "`ein beschleunigtes AI Framework darstellt, welches zur Erstellung von Intelligenten Video Analyse Pipelines genutzt wird."
+		\subsection{Deepstream (MA)}
+		Deepstream ist ein Software Development Kit, das "`ein beschleunigtes AI Framework darstellt, welches zur Erstellung von Intelligenten Video Analyse Pipelines genutzt wird."'
 		\footnote{"https://docs.nvidia.com/metropolis/deepstream/dev-guide/", besucht am 31.05.2020 (eigene Übersetzung)}
-		Deepstream fungiert als "`Schnittstelle"\space zwischen Python, C, C++ Applikationen und der Platform selbst (zum Beispiel einem Nvidia Jetson Nano / TX2).
+		Deepstream fungiert als "`Schnittstelle"'\space zwischen Python, C, C++ Applikationen und der Platform selbst (zum Beispiel einem Nvidia Jetson Nano / TX2).
 		Weiterführend basiert es auf CUDA (einer GPU basierten parallelen Programmiersprache, die meist bei neuronalen Netzen zum Einsatz kommt), welches TensorRT nutzt.
-		\subsection{TensorRT}
-		TensorRT ist, analog zu Deepstream, auch ein Software Development Kit, welches für "high-performance deep learning inference"
+		\subsection{TensorRT (MA)}
+		TensorRT ist, analog zu Deepstream, auch ein Software Development Kit, welches für "`high-performance deep learning inference"'
 		\footnote{"https://developer.nvidia.com/tensorrt", besucht am 31.05.2020} genutzt werden kann.
 		Applikationen, die auf TensorRT basieren, können bis zu 40 mal schneller sein als vergleichbare Applikation, die auf einer CPU berechnet werden.
 		\footnote{"https://developer.nvidia.com/tensorrt", besucht am 31.05.2020}
@@ -174,19 +174,19 @@
 		Durch diese Umwandlung beziehungsweise Optimierung des Netzwerkes, kann ein enormer Geschwindigkeitsgewinn, wie oben beschrieben, erzielt werden. \\
 		Im nächsten Kapitel wird das manuelle Klassifizieren verschiedener Bilder genauer erläutert.
 	\end{onehalfspace}
-	\chapter{Labeling}
+	\chapter{Labeling (PM)}
 	\begin{onehalfspace}
 		 Labeln ist der Vorgang, bei dem in unterschiedlichen Bildern Objekte markiert werden, die die künstliche Intelligenz später als definierte Klasse identifizieren soll. Dieses Kapitel beschreibt, wie beim Labeln vorgegangen wurde. Dabei wird zunächst auf die Datenbeschaffung eingegangen.
-		\section{Datenbeschaffung / Open Image Dataset (OID)}
+		\section{Datenbeschaffung / Open Image Dataset (OID) (PM)}
 		Anfangs wurden durch das OIDv4\_ToolKit\footnote{"https://github.com/TheAiGuysCode/OIDv4\_toolkit", besucht am 01.06.2020} 
 		Bilder aus dem Open Image Dataset (OID) von Google heruntergeladen. Die Bilder waren bereits nach Thematik Ampel beziehungsweise Straßenschilder gelabelt. Leider konnte der Datensatz so nicht direkt verwendet werden, da unsere künstliche Intelligenz auch die Ampelphasen erkennen soll. Ergo wurden alle Bilder mithilfe von Yolo\_Label\footnote{"https://github.com/developer0hye/Yolo\_Label", besucht am 01.06.2020} 
 		neu klassifiziert. Was außerdem erwähnt werden muss, ist die Unterstützung familiärer Seite, welche bei der Beschaffung von Bildern der Ampelphasen und Straßenschildern nachgeholfen haben, indem Bilder selbst aufgenommen wurden. Das half vor allem der Erkennung von rot-gelb und gelb Phasen bei Ampeln, da wenige Aufnahmen dieser Phasen im OID vorhanden waren. Da diese Bilder nicht nach den nötigen Anforderungen gelabelt waren, wurden diese mithilfe von Yolo\_Label manuell klassifiziert. Dieses Tool wird im nächsten Abschnitt beschrieben.
-		\section{Yolo\_Label}
+		\section{Yolo\_Label (PM)}
 		Yolo\_Label ist ein Bearbeitungstool, mit dem Objekte in einem Bild durch einen rechteckigen Rahmen, beispielsweise zum Trainieren einer künstliche Intelligenz, gekennzeichnet werden können. Dazu wird ein Datensatz mit einer Menge an Bildern für die entsprechende Thematik benötigt. Weiterhin muss eine Textdatei erstellt werden, in der die gewünschten Klassen, wie zum Beispiel "`rote Ampel"' bestimmt werden. Wenn beides vorhanden ist, können die gewünschten Objekte in den Bildern nach ausgewählter Klasse gelabelt werden. Bei diesem Vorgang gab es einige Herausforderungen, die gelöst werden mussten. Diese werden im Kapitel Probleme beschrieben.
 		\section{Probleme (MM)}
-				Das Yolo Label Tool (YLT) akzeptiert nur jpg und png Dateien. Bei der Generierung von Trainingsdaten wurden Fotos mit verschiedenen Smartphones aufgenommen. Android Geräte speichern Bilder bereits im jpg Format, wohingegen Apple Geräte und einige Spiegelreflex Kameras das jpeg Format verwenden. Zunächst wurde eine Konvertierung durch umbenennen der Dateiendungen von "`.jpeg"' zu "`.jpg"' versucht. Die so konvertierten Bilder können nun zwar von YLT gelesen werden, jedoch sind Bilder, welche im sogenannten Portrait-Modus, also "`Hochkannt"', aufgenommen wurden, falsch rotiert. Dies liegt daran, dass bei jpeg die Bilder in der ursprünglichen Kamerasensor Orientierung gespeichert werden und dann in den Exif Daten des Bildes eine Flag gesetzt wird, welche dem Anzeige-Programm mitteilt, wie das Bild rotiert werden muss, um in der richtigen Orientation angezeigt zu werden. Diese Flag geht bei der Konvertierung verloren. Daher muss sowohl das Bild als auch die Exif-Daten mit der Python Imaging Library eingelesen werden. Abhängig vom Inhalt der "`Orientation Flag"' (Flag nr. 274) wird das Bild um 90\degree, -90\degree oder 180\degree rotiert (vgl Code~\ref{lst:jpeg2jpgCode}). Das fertige Bild wird dann als jpg in einem eigenen Ordner gespeichert und kann nun für den Labeling Prozess verwendet werden.
+				Das Yolo Label Tool (YLT) akzeptiert nur .jpg und .png Dateien. Bei der Generierung von Trainingsdaten wurden Fotos mit verschiedenen Smartphones aufgenommen. Android Geräte speichern Bilder bereits im jpg Format, wohingegen Apple Geräte und einige Spiegelreflex Kameras das jpeg Format verwenden. Zunächst wurde eine Konvertierung durch umbenennen der Dateiendungen von "`.jpeg"' zu "`.jpg"' versucht. Die so konvertierten Bilder können nun zwar von YLT gelesen werden, jedoch sind Bilder, welche im sogenannten Portrait-Modus, also "`Hochkannt"', aufgenommen wurden, falsch rotiert. Dies liegt daran, dass bei .jpeg die Bilder in der ursprünglichen Kamerasensor Orientierung gespeichert werden und dann in den Exif Daten des Bildes eine Flag gesetzt wird, welche dem Anzeige-Programm mitteilt, wie das Bild rotiert werden muss, um in der richtigen Orientation angezeigt zu werden. Diese Flag geht bei der Konvertierung verloren. Daher muss sowohl das Bild als auch die Exif-Daten mit der Python Imaging Library eingelesen werden. Abhängig vom Inhalt der "`Orientation Flag"' (Flag nr. 274) wird das Bild um 90\degree, -90\degree oder 180\degree rotiert (vgl Code~\ref{lst:jpeg2jpgCode}). Das fertige Bild wird dann als .jpg in einem eigenen Ordner gespeichert und kann nun für den Labeling Prozess verwendet werden.
 				\lstinputlisting[language=Python, firstline=27,lastline=36,basicstyle=\tiny,caption={Auszug aus jpeg zu jpg Konvertierungs-Code},captionpos=b,label={lst:jpeg2jpgCode}]{JPEGTOJPG.py}
-				Nachdem nun einige klasifizierte Bilder vorhanden sind, kann die künstliche Intelligenz trainiert werden. Damit die Erkennung besser funktioniert, sollten die Bilder vorverarbeitet werden. Diese Vorverarbeitungsprozesse werden im nächsten Kapitel geschildert.
+				Nachdem nun einige klassifizierte Bilder vorhanden sind, kann die künstliche Intelligenz trainiert werden. Damit die Erkennung besser funktioniert, sollten die Bilder vermehrt werden, um eine genauere Detektion zu ermöglichen. Außerdem soll die Ampelerkennung geglättet werden. Mit diesen Thematiken beschäftigt sich das nächste Kapitel.
 			
 	\end{onehalfspace}
 	\chapter{Datenverarbeitung (MM)}
@@ -200,7 +200,7 @@
 	
 		\section{Detection Smoothing (MM)}
 		Es ist bekannt, dass die Erkennung einer Ampel über mehrere Frames hinweg nicht konstant ist. So kann es bei der Detektion zu Flimmern der Boundingboxen (Bbox) der Ampeln kommen, was das Arbeiten mit diesen Datengrundlagen erschwert.\newline
-		Als mögliche Lösung wurde versucht, eventuell auftretende "`Datenlücken"' mithilfe von vergangenen Detektionen zu füllen. Hierfür werden alle erkannten Ampel-Bboxen, zusammen mit einem "`framesSinceLastUpdate"', in einem Objekt gespeichert. Bei jedem neuen Frame werden die neuen Bboxen gepuffert und es wird geprüft, ob diese eine, bereits zuvor gepufferte, Bbox schneiden (vgl Code~\ref{lst:OverLapCode}). Bei Überlappung wird die gepufferte Bbox entfernt. Boxen, welche von keiner Neudetektion geschnitten werden, werden zum Ergebnis hinzugefügt und deren framesSinceLastUpdate Wert wird erhöht. Sobald dieser Wert einen bestimmten einstellbaren Threshold überschreitet, wird die Bbox auch ohne Überschneidung entfernt.
+		Als mögliche Lösung wurde versucht, eventuell auftretende "`Datenlücken"' mithilfe von vergangenen Detektionen zu füllen. Hierfür werden alle erkannten Ampel-Bboxen, zusammen mit einem "`framesSinceLastUpdate"', in einem Objekt gespeichert. Bei jedem neuen Frame werden die neuen Bboxen gepuffert und es wird geprüft, ob diese eine bereits zuvor gepufferte Bbox schneiden (vgl Code~\ref{lst:OverLapCode}). Bei Überlappung wird die gepufferte Bbox entfernt. Boxen, welche von keiner Neudetektion geschnitten werden, werden zum Ergebnis hinzugefügt und deren framesSinceLastUpdate Wert wird erhöht. Sobald dieser Wert einen bestimmten einstellbaren Threshold überschreitet, wird die Bbox auch ohne Überschneidung entfernt.
 		\lstinputlisting[language=C,firstline=869,lastline=888,basicstyle=\tiny,caption={Überlappungsdetektion von zwei Bboxen},captionpos=b,label={lst:OverLapCode}]{imageOpencv.cpp}
 		Bei diesem Vorgehen traten einige Probleme seitens der Implementierung auf. Diese werden im nächsten Teil beschrieben.
 		\section{Probleme (MM)}
@@ -243,15 +243,15 @@
 		
 	\end{onehalfspace}
 	
-	\chapter{Schlusswort}
+	\chapter{Schlusswort (PM)}
 	\begin{onehalfspace}
-		Als Ergebnis präsentiert die Studienarbeit eine funktionstüchtige Tiny-YOLO künstliche Intelligenz, die in der Lage ist, Ampelphasen und Straßenschilder zu erkennen. Dabei werden die Straßenschilder nur erkannt, damit der Algorithmus nicht fälschlicherweise ein Schild als Ampel erkennen kann, da dies, speziell bei Parkverbotsschilder, ein großes Problem darstellte. In seltenen Fällen kann dieses dennoch eintreten. Insgesamt läuft das System mit Tiny-YOLO sehr gut und performant (ca. 58 fps) auf einem Laptop (CUDA + CUDNN + OPENCV (GTX1050)). In Zukunft kann dieses Projekt auf den NVIDIA Jetson ausgeweitet werden, damit eine "`mobile"' Version der Detektion entstehen kann. Da die Technische Hochschule Deggendorf zu Corona-Zeiten keinen Jetson Nano mehr für diese Studienarbeit zur Verfügung stellen konnte, konnte das Projekt nur auf herkömmlichen PC-Systemen bearbeitet werden. Es stand kurzzeitig ein privater NVIDIA Jetson Nano zur Verfügung, um die Performanz der künstlichen Intelligenz unter Probe zu stellen. Dabei war es möglich mit dem Jetson eine Bilderkennung von bis zu 21 Bildern pro Sekunde zu erreichen (siehe Abbildung~\ref{fig:Jetson}).
+		Als Ergebnis präsentiert die Studienarbeit eine funktionstüchtige Tiny-YOLO künstliche Intelligenz, die in der Lage ist, Ampelphasen und Straßenschilder zu erkennen. Dabei werden die Straßenschilder nur erkannt, damit der Algorithmus nicht fälschlicherweise ein Schild als Ampel erkennen kann, da dies, speziell bei Parkverbotsschilder, ein großes Problem darstellte. In seltenen Fällen kann dieses dennoch eintreten. Insgesamt läuft das System mit Tiny-YOLO sehr gut und performant (ca. 58 fps) auf einem Laptop (CUDA + CUDNN + OPENCV (GTX1050)). In Zukunft kann dieses Projekt auf den NVIDIA Jetson ausgeweitet werden, damit eine "`mobile"' Version der Detektion entstehen kann. Da die Technische Hochschule Deggendorf zu Corona-Zeiten keinen Jetson Nano mehr für diese Studienarbeit zur Verfügung stellen konnte, konnte das Projekt nur auf herkömmlichen PC-Systemen bearbeitet werden. Es stand kurzzeitig ein privater NVIDIA Jetson Nano zur Verfügung, um die Performanz der künstlichen Intelligenz unter Probe zu stellen. Dabei war es möglich mit dem Jetson eine Bilderkennung von bis zu 21 Bildern pro Sekunde zu erreichen (siehe Abbildung~\ref{fig:Jetson}).\\
+		Da der Jetson nach einem Tag wieder zurückgegeben werden musste, konnten keine weiteren Tests und Optimierungen auf dieser Platform ausgeführt werden. Die Werte sind in jedem Fall gut genug, dass eine mobile Variante mit diesem umsetzbar wäre. Damit die weitere Bilderkennung präziser gestaltet werden kann, sollten schnelle geeignete "`Image Processing"'-Verfahren genutzt werden. Diese wurden jedoch nicht angewandt, da sie zu ungenau beziehungsweise zu laufzeitaufwendig waren.
 		\begin{figure}[h!]
 			\includegraphics[width=\linewidth]{Jetson.png}
 			\caption{Jetson Momentaufnahme}
 			\label{fig:Jetson}
 		\end{figure}
-		Da der Jetson nach einem Tag wieder zurückgegeben werden musste, konnten keine weiteren Tests und Optimierungen auf dieser Platform ausgeführt werden. Die Werte sind in jedem Fall gut genug, dass eine mobile Variante mit diesem umsetzbar wäre. Damit die weitere Bilderkennung präziser gestaltet werden kann, sollten schnelle geeignete "`Image Processing"'-Verfahren genutzt werden. Diese wurden jedoch nicht angewandt, da sie zu ungenau beziehungsweise zu laufzeitaufwendig waren.
 	\end{onehalfspace}
 	
 \end{document}
